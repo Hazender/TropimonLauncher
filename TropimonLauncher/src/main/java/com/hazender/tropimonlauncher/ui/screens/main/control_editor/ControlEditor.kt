@@ -1,0 +1,476 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
+package com.hazender.tropimonlauncher.ui.screens.main.control_editor
+
+import androidx.compose.foundation.layout.BoxWithConstraintsScope
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.IntSize
+import com.hazender.layer_controller.ControlEditorLayer
+import com.hazender.layer_controller.data.ButtonSize
+import com.hazender.layer_controller.data.CenterPosition
+import com.hazender.layer_controller.data.NormalData
+import com.hazender.layer_controller.data.TextData
+import com.hazender.layer_controller.data.VisibilityType
+import com.hazender.layer_controller.data.createAdaptiveButtonSize
+import com.hazender.layer_controller.data.createWidgetWithUUID
+import com.hazender.layer_controller.data.lang.createTranslatable
+import com.hazender.layer_controller.event.ClickEvent
+import com.hazender.layer_controller.layout.createNewLayer
+import com.hazender.layer_controller.observable.ObservableButtonStyle
+import com.hazender.layer_controller.observable.ObservableControlLayer
+import com.hazender.layer_controller.observable.ObservableWidget
+import com.hazender.tropimonlauncher.R
+import com.hazender.tropimonlauncher.setting.AllSettings
+import com.hazender.tropimonlauncher.setting.enums.isLauncherInDarkTheme
+import com.hazender.tropimonlauncher.ui.components.MenuState
+import com.hazender.tropimonlauncher.ui.components.ProgressDialog
+import com.hazender.tropimonlauncher.ui.components.SimpleAlertDialog
+import com.hazender.tropimonlauncher.ui.components.SimpleEditDialog
+import com.hazender.tropimonlauncher.ui.screens.main.control_editor.edit_layer.EditControlLayerDialog
+import com.hazender.tropimonlauncher.ui.screens.main.control_editor.edit_layer.EditSwitchLayersVisibilityDialog
+import com.hazender.tropimonlauncher.ui.screens.main.control_editor.edit_style.EditStyleDialog
+import com.hazender.tropimonlauncher.ui.screens.main.control_editor.edit_style.StyleListDialog
+import com.hazender.tropimonlauncher.ui.screens.main.control_editor.edit_translatable.EditTranslatableTextDialog
+import com.hazender.tropimonlauncher.ui.screens.main.control_editor.edit_widget.EditWidgetDialog
+import com.hazender.tropimonlauncher.ui.screens.main.control_editor.edit_widget.SelectLayers
+import com.hazender.tropimonlauncher.ui.screens.main.control_editor.edit_widget.SelectedWidgetData
+import com.hazender.tropimonlauncher.utils.string.getMessageOrToString
+import com.hazender.tropimonlauncher.viewmodel.EditorViewModel
+import java.io.File
+
+/**
+ * 控制布局编辑器主要UI，用于编辑控制布局
+ * @param exit 保存后执行的退出
+ * @param menuExit 通过菜单直接调用的“直接退出”
+ */
+@Composable
+fun BoxWithConstraintsScope.ControlEditor(
+    viewModel: EditorViewModel,
+    targetFile: File,
+    exit: () -> Unit,
+    menuExit: () -> Unit
+) {
+    val layers by viewModel.observableLayout.layers.collectAsState()
+    val styles by viewModel.observableLayout.styles.collectAsState()
+
+    /** 默认新建的控件层的名称 */
+    val defaultLayerName = stringResource(R.string.control_editor_edit_layer_default)
+    /** 默认新建的按键的名称 */
+    val defaultButtonName = stringResource(R.string.control_editor_edit_button_default)
+    /** 默认新建的文本框的名称 */
+    val defaultTextName = stringResource(R.string.control_editor_edit_text_default)
+
+    val density = LocalDensity.current
+    val screenSize = remember(maxWidth, maxHeight) {
+        with(density) {
+            IntSize(
+                width = maxWidth.roundToPx(),
+                height = maxHeight.roundToPx()
+            )
+        }
+    }
+    val screenHeight = remember(screenSize) { screenSize.height }
+
+    if (viewModel.isPreviewMode) {
+        PreviewControlBox(
+            modifier = Modifier.fillMaxSize(),
+            observableLayout = viewModel.observableLayout,
+            previewScenario = viewModel.previewScenario,
+            previewHideLayerWhen = viewModel.previewHideLayerWhen
+        )
+    } else {
+        ControlEditorLayer(
+            observedLayout = viewModel.observableLayout,
+            onButtonTap = { data, layer ->
+                viewModel.selectedWidget = SelectedWidgetData(data, layer)
+                viewModel.editorOperation = EditorOperation.SelectButton
+            },
+            enableSnap = AllSettings.editorEnableWidgetSnap.state,
+            snapInAllLayers = AllSettings.editorSnapInAllLayers.state,
+            snapMode = AllSettings.editorWidgetSnapMode.state,
+            focusedLayer = viewModel.selectedLayer,
+            isDark = isLauncherInDarkTheme()
+        )
+    }
+
+    EditorMenu(
+        state = viewModel.editorMenu,
+        closeScreen = { viewModel.editorMenu = MenuState.HIDE },
+        layers = layers,
+        onReorder = { from, to ->
+            viewModel.observableLayout.reorder(from, to)
+        },
+        selectedLayer = viewModel.selectedLayer,
+        onLayerSelected = { layer ->
+            viewModel.selectedLayer = layer
+        },
+        createLayer = {
+            viewModel.observableLayout.addLayer(createNewLayer(defaultLayerName = defaultLayerName))
+        },
+        onAttribute = { layer ->
+            viewModel.editorOperation = EditorOperation.EditLayer(layer)
+        },
+        addNewButton = {
+            viewModel.addWidget(layers) { layer ->
+                layer.addNormalButton(
+                    createWidgetWithUUID { uuid ->
+                        NormalData(
+                            text = createTranslatable(default = defaultButtonName),
+                            uuid = uuid,
+                            position = CenterPosition,
+                            buttonSize = createAdaptiveButtonSize(
+                                referenceLength = screenHeight,
+                                density = density.density
+                            ),
+                            visibilityType = VisibilityType.ALWAYS,
+                            isSwipple = false,
+                            isPenetrable = false,
+                            isToggleable = false
+                        )
+                    }
+                )
+            }
+        },
+        addNewText = {
+            viewModel.addWidget(layers) { layer ->
+                layer.addTextBox(
+                    createWidgetWithUUID { uuid ->
+                        TextData(
+                            text = createTranslatable(default = defaultTextName),
+                            uuid = uuid,
+                            position = CenterPosition,
+                            buttonSize = createAdaptiveButtonSize(
+                                referenceLength = screenHeight,
+                                density = density.density,
+                                type = ButtonSize.Type.WrapContent //文本框默认使用包裹内容
+                            ),
+                            visibilityType = VisibilityType.ALWAYS
+                        )
+                    }
+                )
+            }
+        },
+        openStyleList = {
+            viewModel.editorOperation = EditorOperation.OpenStyleList
+        },
+        isPreviewMode = viewModel.isPreviewMode,
+        onPreviewChanged = { mode ->
+            viewModel.applyEditorHide()
+            viewModel.isPreviewMode = mode
+        },
+        previewScenario = viewModel.previewScenario,
+        onPreviewScenarioChanged = { scenario ->
+            viewModel.previewScenario = scenario
+        },
+        previewHideLayerWhen = viewModel.previewHideLayerWhen,
+        onPreviewHideLayerChanged = { hideWhen ->
+            viewModel.previewHideLayerWhen = hideWhen
+        },
+        onSave = {
+            viewModel.save(targetFile, onSaved = {})
+        },
+        saveAndExit = {
+            viewModel.save(targetFile, onSaved = exit)
+        },
+        onExit = menuExit,
+    )
+
+    MenuBox(
+        position = viewModel.editorBallPosition,
+        onPositionChanged = { viewModel.editorBallPosition = it }
+    ) {
+        viewModel.switchMenu()
+    }
+
+    EditWidgetDialog(
+        data = viewModel.selectedWidget,
+        visible = viewModel.editorOperation == EditorOperation.SelectButton,
+        styles = styles,
+        onDismissRequest = {
+            viewModel.editorOperation = EditorOperation.None
+        },
+        onDelete = { data, layer ->
+            viewModel.removeWidget(layer, data)
+            viewModel.editorOperation = EditorOperation.None
+        },
+        onClone = { data, layer ->
+            viewModel.editorWidgetOperation = EditorWidgetOperation.CloneButton(data, layer)
+        },
+        onEditWidgetText = { string ->
+            viewModel.editorWidgetOperation = EditorWidgetOperation.EditWidgetText(string)
+        },
+        switchControlLayers = { data, type ->
+            viewModel.editorWidgetOperation = EditorWidgetOperation.SwitchLayersVisibility(data, type)
+        },
+        sendText = { data ->
+            viewModel.editorWidgetOperation = EditorWidgetOperation.SendText(data)
+        },
+        openStyleList = {
+            viewModel.editorOperation = EditorOperation.OpenStyleList
+        }
+    )
+
+    EditStyleDialog(
+        visible = viewModel.editorOperation == EditorOperation.EditStyle,
+        style = viewModel.selectedStyle,
+        onClose = {
+            viewModel.editorOperation = EditorOperation.None
+        }
+    )
+
+    EditorOperation(
+        operation = viewModel.editorOperation,
+        changeOperation = { viewModel.editorOperation = it },
+        onDeleteLayer = { layer ->
+            viewModel.removeLayer(layer)
+        },
+        onMergeDownward = { layer ->
+            viewModel.observableLayout.mergeDownward(layer)
+        },
+        onEditStyle = { style ->
+            viewModel.selectedStyle = style
+            viewModel.editorOperation = EditorOperation.EditStyle
+        },
+        onCreateStyle = { name ->
+            viewModel.createNewStyle(name)
+        },
+        onCloneStyle = { style ->
+            viewModel.cloneStyle(style)
+        },
+        onDeleteStyle = { style ->
+            viewModel.removeStyle(style)
+        },
+        styles = styles
+    )
+
+    EditorWidgetOperation(
+        operation = viewModel.editorWidgetOperation,
+        changeOperation = { viewModel.editorWidgetOperation = it },
+        controlLayers = layers,
+        onCloneWidgets = { widget, layers ->
+            viewModel.cloneWidgetToLayers(widget, layers)
+        }
+    )
+
+    EditorWarningOperation(
+        operation = viewModel.editorWarningOperation,
+        changeOperation = { viewModel.editorWarningOperation = it }
+    )
+}
+
+@Composable
+private fun EditorOperation(
+    operation: EditorOperation,
+    changeOperation: (EditorOperation) -> Unit,
+    onDeleteLayer: (ObservableControlLayer) -> Unit,
+    onMergeDownward: (ObservableControlLayer) -> Unit,
+    onEditStyle: (ObservableButtonStyle) -> Unit,
+    onCreateStyle: (name: String) -> Unit,
+    onCloneStyle: (ObservableButtonStyle) -> Unit,
+    onDeleteStyle: (ObservableButtonStyle) -> Unit,
+    styles: List<ObservableButtonStyle>
+) {
+    when (operation) {
+        is EditorOperation.None, is EditorOperation.SelectButton -> {}
+        is EditorOperation.EditLayer -> {
+            val layer = operation.layer
+            EditControlLayerDialog(
+                layer = layer,
+                onDismissRequest = {
+                    changeOperation(EditorOperation.None)
+                },
+                onDelete = {
+                    onDeleteLayer(layer)
+                    changeOperation(EditorOperation.None)
+                },
+                onMergeDownward = {
+                    onMergeDownward(layer)
+                }
+            )
+        }
+        is EditorOperation.OpenStyleList -> {
+            StyleListDialog(
+                styles = styles,
+                onEditStyle = onEditStyle,
+                onCreate = {
+                    changeOperation(EditorOperation.CreateStyle)
+                },
+                onClone = { style ->
+                    onCloneStyle(style)
+                },
+                onDelete = { style ->
+                    onDeleteStyle(style)
+                },
+                onClose = {
+                    changeOperation(EditorOperation.None)
+                }
+            )
+        }
+        is EditorOperation.CreateStyle -> {
+            var name by remember { mutableStateOf("") }
+            SimpleEditDialog(
+                title = stringResource(R.string.control_editor_edit_style_config_name),
+                value = name,
+                onValueChange = { name = it },
+                singleLine = true,
+                onDismissRequest = {
+                    changeOperation(EditorOperation.None)
+                },
+                onConfirm = {
+                    onCreateStyle(name)
+                    changeOperation(EditorOperation.OpenStyleList)
+                }
+            )
+        }
+        is EditorOperation.EditStyle -> {
+        }
+        is EditorOperation.Saving -> {
+            ProgressDialog(
+                title = stringResource(R.string.control_manage_saving)
+            )
+        }
+        is EditorOperation.SaveFailed -> {
+            SimpleAlertDialog(
+                title = stringResource(R.string.control_manage_failed_to_save),
+                text = operation.error.getMessageOrToString()
+            ) {
+                changeOperation(EditorOperation.None)
+            }
+        }
+    }
+}
+
+@Composable
+private fun EditorWidgetOperation(
+    operation: EditorWidgetOperation,
+    changeOperation: (EditorWidgetOperation) -> Unit,
+    controlLayers: List<ObservableControlLayer>,
+    onCloneWidgets: (ObservableWidget, List<ObservableControlLayer>) -> Unit,
+) {
+    when (operation) {
+        is EditorWidgetOperation.None -> {}
+        is EditorWidgetOperation.CloneButton -> {
+            val data = operation.data
+            val layer = operation.layer
+            SelectLayers(
+                layers= controlLayers,
+                initLayer = layer,
+                onDismissRequest = {
+                    changeOperation(EditorWidgetOperation.None)
+                },
+                title = stringResource(R.string.control_editor_edit_dialog_clone_widget_title),
+                confirmText = stringResource(R.string.control_editor_edit_dialog_clone_widget),
+                onConfirm = { layers ->
+                    onCloneWidgets(data, layers)
+                    changeOperation(EditorWidgetOperation.None)
+                }
+            )
+        }
+        is EditorWidgetOperation.EditWidgetText -> {
+            EditTranslatableTextDialog(
+                text = operation.string,
+                singleLine = false,
+                onClose = {
+                    changeOperation(EditorWidgetOperation.None)
+                }
+            )
+        }
+        is EditorWidgetOperation.SendText -> {
+            val data = operation.data
+            //文本内容
+            var value by remember {
+                mutableStateOf(data.clickEvents.find { it.type == ClickEvent.Type.SendText }?.key ?: "")
+            }
+            SimpleEditDialog(
+                title = stringResource(R.string.control_editor_edit_event_launcher_send_text),
+                value = value,
+                onValueChange = { new ->
+                    value = new
+                },
+                extraBody = {
+                    Text(
+                        text = stringResource(R.string.control_editor_edit_event_launcher_send_text_summary),
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                },
+                label = {
+                    Text(text = stringResource(R.string.control_editor_edit_event_launcher_send_text_hint))
+                },
+                singleLine = true,
+                onConfirm = {
+                    //清除所有发送文本事件，如果文本不为空则再添加
+                    data.removeAllEvent(ClickEvent.Type.SendText)
+                    if (value.isNotEmpty()) {
+                        data.addEvent(ClickEvent(ClickEvent.Type.SendText, value))
+                    }
+                    changeOperation(EditorWidgetOperation.None)
+                }
+            )
+        }
+        is EditorWidgetOperation.SwitchLayersVisibility -> {
+            val data = operation.data
+            val type = operation.type
+            EditSwitchLayersVisibilityDialog(
+                data = data,
+                layers = controlLayers,
+                type = type,
+                onDismissRequest = {
+                    changeOperation(EditorWidgetOperation.None)
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun EditorWarningOperation(
+    operation: EditorWarningOperation,
+    changeOperation: (EditorWarningOperation) -> Unit
+) {
+    when (operation) {
+        is EditorWarningOperation.None -> {}
+        is EditorWarningOperation.WarningNoLayers -> {
+            SimpleAlertDialog(
+                title = stringResource(R.string.control_editor_menu_no_layers_title),
+                text = stringResource(R.string.control_editor_menu_no_layers_message)
+            ) {
+                changeOperation(EditorWarningOperation.None)
+            }
+        }
+        is EditorWarningOperation.WarningNoSelectLayer -> {
+            SimpleAlertDialog(
+                title = stringResource(R.string.control_editor_menu_no_selected_layer_title),
+                text = stringResource(R.string.control_editor_menu_no_selected_layer_message)
+            ) {
+                changeOperation(EditorWarningOperation.None)
+            }
+        }
+    }
+}

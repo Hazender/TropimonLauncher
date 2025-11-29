@@ -19,8 +19,8 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "ZalithLauncher"
-include(":ZalithLauncher")
+rootProject.name = "TropimonLauncher"
+include(":TropimonLauncher")
 include(":LWJGL")
 include(":LayerController")
 include(":ColorPicker")

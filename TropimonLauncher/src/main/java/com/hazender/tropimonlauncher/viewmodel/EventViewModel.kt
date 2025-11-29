@@ -1,0 +1,65 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
+package com.hazender.tropimonlauncher.viewmodel
+
+import android.view.KeyEvent
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
+
+class EventViewModel : ViewModel() {
+    private val _events = MutableSharedFlow<Event>(extraBufferCapacity = 1)
+    val events = _events.asSharedFlow()
+
+    /**
+     * 发送一个事件
+     */
+    fun sendEvent(event: Event) {
+        viewModelScope.launch {
+            _events.emit(event)
+        }
+    }
+
+    sealed interface Event {
+        sealed interface Key : Event {
+            /** 让MainActivity开始按键捕获 */
+            data object StartKeyCapture : Key
+            /** 让MainActivity停止按键捕获 */
+            data object StopKeyCapture : Key
+            /** 由MainActivity发送的按键捕获结果 */
+            data class OnKeyDown(val key: KeyEvent) : Key
+        }
+        sealed interface Game : Event {
+            /** 呼出IME */
+            data object ShowIme : Game
+            /** 刷新游戏画面分辨率 */
+            data object RefreshSize : Game
+            /** 用户按下系统返回键 */
+            data object OnBack : Game
+            /** [com.hazender.tropimonlauncher.game.launch.handler.AbstractHandler.onResume] */
+            data object OnResume: Game
+        }
+        /** 在浏览器访问链接 */
+        data class OpenLink(val url: String) : Event
+        /** 刷新全屏 */
+        data object RefreshFullScreen : Event
+    }
+}

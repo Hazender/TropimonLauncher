@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.movtery.layer_controller"
+    namespace = "com.hazender.layer_controller"
     compileSdk = 36
 
     defaultConfig {

@@ -1,0 +1,147 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
+package com.hazender.tropimonlauncher.game.launch
+
+import android.app.Activity
+import android.content.Context
+import android.net.Uri
+import androidx.compose.ui.unit.IntSize
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.hazender.tropimonlauncher.R
+import com.hazender.tropimonlauncher.bridge.LoggerBridge
+import com.hazender.tropimonlauncher.game.multirt.Runtime
+import com.hazender.tropimonlauncher.game.multirt.RuntimesManager
+import com.hazender.tropimonlauncher.game.path.GamePathManager
+import com.hazender.tropimonlauncher.game.path.getGameHome
+import com.hazender.tropimonlauncher.path.PathManager
+import com.hazender.tropimonlauncher.setting.AllSettings
+import com.hazender.tropimonlauncher.ui.activities.runJar
+import com.hazender.tropimonlauncher.utils.logging.Logger.lInfo
+import com.hazender.tropimonlauncher.utils.logging.Logger.lWarning
+import com.hazender.tropimonlauncher.utils.string.getMessageOrToString
+import com.hazender.tropimonlauncher.utils.string.splitPreservingQuotes
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+
+open class JvmLauncher(
+    private val context: Context,
+    private val getWindowSize: () -> IntSize,
+    private val jvmLaunchInfo: JvmLaunchInfo,
+    onExit: (code: Int, isSignal: Boolean) -> Unit
+) : Launcher(onExit) {
+    override fun exit() {
+
+    }
+
+    override suspend fun launch(): Int {
+        generateLauncherProfiles(jvmLaunchInfo.userHome)
+        val (runtime, argList) = getStartupNeeded()
+
+        this.runtime = runtime
+
+        return launchJvm(
+            context = context,
+            jvmArgs = argList,
+            userHome = jvmLaunchInfo.userHome,
+            userArgs = AllSettings.jvmArgs.getValue(),
+            getWindowSize = getWindowSize
+        )
+    }
+
+    override fun chdir(): String {
+        return getGameHome()
+    }
+
+    override fun getLogName(): String = LogName.JVM.fileName
+
+    private fun getStartupNeeded(): Pair<Runtime, List<String>> {
+        val args = jvmLaunchInfo.jvmArgs.splitPreservingQuotes()
+
+        val runtime = jvmLaunchInfo.jreName?.let { jreName ->
+            RuntimesManager.forceReload(jreName)
+        } ?: run {
+            RuntimesManager.forceReload(AllSettings.javaRuntime.getValue())
+        }
+
+        val windowSize = getWindowSize()
+        val argList: MutableList<String> = ArrayList(
+            getCacioJavaArgs(windowSize.width, windowSize.height, runtime.javaVersion == 8)
+        ).apply {
+            addAll(args)
+        }
+
+        LoggerBridge.appendTitle("Launch JVM")
+        LoggerBridge.append("Info: Java arguments: \r\n${argList.joinToString("\r\n")}")
+
+        return Pair(runtime, argList)
+    }
+}
+
+fun executeJarWithUri(activity: Activity, uri: Uri, jreName: String? = null) {
+    runCatching {
+        val cacheFile = File(PathManager.DIR_CACHE, "temp-jar.jar")
+        activity.contentResolver.openInputStream(uri)?.use { contentStream ->
+            FileOutputStream(cacheFile).use { fileOutputStream ->
+                contentStream.copyTo(fileOutputStream)
+            }
+            runJar(activity, cacheFile, jreName, null)
+        } ?: throw IOException("Failed to open content stream")
+    }.onFailure { e ->
+        finalErrorDialog(activity, e.getMessageOrToString())
+    }
+}
+
+private fun finalErrorDialog(
+    activity: Activity,
+    error: String,
+    onDismiss: () -> Unit = {}
+) {
+    activity.runOnUiThread {
+        MaterialAlertDialogBuilder(activity)
+            .setTitle(R.string.generic_error)
+            .setMessage(error)
+            .setCancelable(false)
+            .setPositiveButton(R.string.generic_confirm) { dialog, _ ->
+                dialog.dismiss()
+                onDismiss()
+            }
+            .show()
+    }
+}
+
+private val DEFAULT_LAUNCHER_PROFILES = """{"profiles":{"default":{"lastVersionId":"latest-release"}},"selectedProfile":"default"}""".trimIndent()
+
+/**
+ * 写入一个默认的 launcher_profiles.json 文件，不存在将会导致 Forge、NeoForge 等无法正常安装
+ */
+private fun generateLauncherProfiles(userHome: String?) {
+    runCatching {
+        File(userHome?.let { "$it/.minecraft" } ?: GamePathManager.currentPath, "launcher_profiles.json").run {
+            if (!exists()) {
+                if (parentFile?.exists() == false) parentFile?.mkdirs()
+                if (!createNewFile()) throw IOException("Failed to create launcher_profiles.json file!")
+                writeText(DEFAULT_LAUNCHER_PROFILES)
+                lInfo("The content has already been written! File Location: $absolutePath")
+            }
+        }
+    }.onFailure {
+        lWarning("Unable to generate launcher_profiles.json file!", it)
+    }
+}

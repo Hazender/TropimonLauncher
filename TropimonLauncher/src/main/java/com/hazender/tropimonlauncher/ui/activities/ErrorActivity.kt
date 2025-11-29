@@ -1,0 +1,163 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
+package com.hazender.tropimonlauncher.ui.activities
+
+import android.content.Context
+import android.content.Intent
+import android.os.Bundle
+import android.os.Parcelable
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Box
+import com.jakewharton.processphoenix.ProcessPhoenix
+import com.hazender.tropimonlauncher.R
+import com.hazender.tropimonlauncher.game.launch.LogName
+import com.hazender.tropimonlauncher.path.PathManager
+import com.hazender.tropimonlauncher.ui.base.BaseComponentActivity
+import com.hazender.tropimonlauncher.ui.screens.main.ErrorScreen
+import com.hazender.tropimonlauncher.ui.theme.ZalithLauncherTheme
+import com.hazender.tropimonlauncher.utils.file.shareFile
+import com.hazender.tropimonlauncher.utils.getParcelableSafely
+import com.hazender.tropimonlauncher.utils.getSerializableSafely
+import com.hazender.tropimonlauncher.utils.string.throwableToString
+import kotlinx.parcelize.Parcelize
+import java.io.File
+
+private const val BUNDLE_EXIT_TYPE = "BUNDLE_EXIT_TYPE"
+private const val BUNDLE_THROWABLE = "BUNDLE_THROWABLE"
+private const val BUNDLE_JVM_CRASH = "BUNDLE_JVM_CRASH"
+private const val BUNDLE_CAN_RESTART = "BUNDLE_CAN_RESTART"
+private const val EXIT_JVM = "EXIT_JVM"
+private const val EXIT_LAUNCHER = "EXIT_LAUNCHER"
+
+fun showExitMessage(context: Context, code: Int, isSignal: Boolean) {
+    val intent = Intent(context, ErrorActivity::class.java).apply {
+        addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        putExtra(BUNDLE_EXIT_TYPE, EXIT_JVM)
+        putExtra(BUNDLE_JVM_CRASH, JvmCrash(code, isSignal))
+    }
+    context.startActivity(intent)
+}
+
+@Parcelize
+private data class JvmCrash(val code: Int, val isSignal: Boolean): Parcelable
+
+class ErrorActivity : BaseComponentActivity(refreshData = false) {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        val extras = intent.extras ?: return runFinish()
+
+        val exitType = extras.getString(BUNDLE_EXIT_TYPE, EXIT_LAUNCHER)
+
+        val errorMessage = when (exitType) {
+            EXIT_JVM -> {
+                val jvmCrash = extras.getParcelableSafely(BUNDLE_JVM_CRASH, JvmCrash::class.java) ?: return runFinish()
+                val messageResId = if (jvmCrash.isSignal) R.string.crash_singnal_message else R.string.crash_exit_message
+                val message = getString(messageResId, jvmCrash.code)
+                val messageBody = getString(R.string.crash_exit_note)
+                ErrorMessage(
+                    message = message,
+                    messageBody = messageBody,
+                    crashType = CrashType.GAME_CRASH
+                )
+            }
+            else -> {
+                val throwable = extras.getSerializableSafely(BUNDLE_THROWABLE, Throwable::class.java) ?: return runFinish()
+                val message = getString(R.string.crash_launcher_message)
+                val messageBody = throwableToString(throwable)
+                ErrorMessage(
+                    message = message,
+                    messageBody = messageBody,
+                    crashType = CrashType.LAUNCHER_CRASH
+                )
+            }
+        }
+
+        val logFile = when (exitType) {
+            EXIT_JVM -> {
+                File(PathManager.DIR_FILES_EXTERNAL, "${LogName.GAME.fileName}.log")
+            }
+            else -> {
+                PathManager.FILE_CRASH_REPORT
+            }
+        }
+
+        val canRestart: Boolean = extras.getBoolean(BUNDLE_CAN_RESTART, true)
+
+        setContent {
+            ZalithLauncherTheme {
+                Box {
+                    ErrorScreen(
+                        crashType = errorMessage.crashType,
+                        message = errorMessage.message,
+                        messageBody = errorMessage.messageBody,
+                        shareLogs = logFile.exists() && logFile.isFile,
+                        canRestart = canRestart,
+                        onShareLogsClick = {
+                            if (logFile.exists() && logFile.isFile) {
+                                shareFile(this@ErrorActivity, logFile)
+                            }
+                        },
+                        onRestartClick = {
+                            ProcessPhoenix.triggerRebirth(this@ErrorActivity)
+                        },
+                        onExitClick = { finish() }
+                    )
+                }
+            }
+        }
+    }
+
+    private data class ErrorMessage(
+        val message: String,
+        val messageBody: String,
+        val crashType: CrashType
+    )
+}
+
+/**
+ * 崩溃类型
+ */
+enum class CrashType(val textRes: Int) {
+    /**
+     * 启动器崩溃
+     */
+    LAUNCHER_CRASH(R.string.crash_type_launcher),
+
+    /**
+     * 游戏运行崩溃
+     */
+    GAME_CRASH(R.string.crash_type_game)
+}
+
+/**
+ * 启动软件崩溃信息页面
+ */
+fun showLauncherCrash(context: Context, throwable: Throwable, canRestart: Boolean = true) {
+    val intent = Intent(context, ErrorActivity::class.java).apply {
+        addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        putExtra(BUNDLE_EXIT_TYPE, EXIT_LAUNCHER)
+        putExtra(BUNDLE_THROWABLE, throwable)
+        putExtra(BUNDLE_CAN_RESTART, canRestart)
+    }
+    context.startActivity(intent)
+}

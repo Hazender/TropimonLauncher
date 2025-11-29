@@ -1,0 +1,165 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
+package com.hazender.tropimonlauncher.ui.activities
+
+import android.annotation.SuppressLint
+import android.content.Intent
+import android.os.Bundle
+import androidx.activity.compose.setContent
+import androidx.activity.viewModels
+import androidx.compose.foundation.layout.Box
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.lifecycleScope
+import com.hazender.tropimonlauncher.SplashException
+import com.hazender.tropimonlauncher.components.Components
+import com.hazender.tropimonlauncher.components.InstallableItem
+import com.hazender.tropimonlauncher.components.UnpackComponentsTask
+import com.hazender.tropimonlauncher.components.jre.Jre
+import com.hazender.tropimonlauncher.components.jre.UnpackJnaTask
+import com.hazender.tropimonlauncher.components.jre.UnpackJreTask
+import com.hazender.tropimonlauncher.setting.AllSettings
+import com.hazender.tropimonlauncher.ui.base.BaseComponentActivity
+import com.hazender.tropimonlauncher.ui.screens.splash.SplashScreen
+import com.hazender.tropimonlauncher.ui.theme.ZalithLauncherTheme
+import com.hazender.tropimonlauncher.utils.logging.Logger.lInfo
+import com.hazender.tropimonlauncher.viewmodel.SplashBackStackViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicInteger
+
+@SuppressLint("CustomSplashScreen")
+class SplashActivity : BaseComponentActivity(refreshData = false) {
+    private val unpackItems: MutableList<InstallableItem> = ArrayList()
+    private var finishedTaskCount = AtomicInteger(0)
+
+    private val backStackViewModel: SplashBackStackViewModel by viewModels()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        installSplashScreen()
+
+        initUnpackItems()
+        checkAllTask()
+
+        if (checkTasksToMain()) {
+            return
+        }
+
+        setContent {
+            ZalithLauncherTheme {
+                Box {
+                    SplashScreen(
+                        startAllTask = { startAllTask() },
+                        unpackItems = unpackItems,
+                        screenViewModel = backStackViewModel
+                    )
+                }
+            }
+        }
+    }
+
+    private fun initUnpackItems() {
+        Components.entries.forEach { component ->
+            val task = UnpackComponentsTask(this@SplashActivity, component)
+            if (!task.isCheckFailed()) {
+                unpackItems.add(
+                    InstallableItem(
+                        component.displayName,
+                        getString(component.summary),
+                        task
+                    )
+                )
+            }
+        }
+        Jre.entries.forEach { jre ->
+            val task = UnpackJreTask(this@SplashActivity, jre)
+            if (!task.isCheckFailed()) {
+                unpackItems.add(
+                    InstallableItem(
+                        jre.jreName,
+                        getString(jre.summary),
+                        task
+                    )
+                )
+            }
+        }
+        val jnaTask = UnpackJnaTask(this@SplashActivity)
+        if (!jnaTask.isCheckFailed()) {
+            unpackItems.add(
+                InstallableItem(
+                    "JNA",
+                    null,
+                    jnaTask
+                )
+            )
+        }
+        unpackItems.sort()
+    }
+
+    private fun checkAllTask() {
+        unpackItems.forEach { item ->
+            if (!item.task.isNeedUnpack()) {
+                item.isFinished = true
+                finishedTaskCount.incrementAndGet()
+            }
+        }
+    }
+
+    private fun startAllTask() {
+        lifecycleScope.launch {
+            val jobs = unpackItems
+                .filter { !it.isFinished }
+                .map { item ->
+                    launch(Dispatchers.IO) {
+                        item.isRunning = true
+                        runCatching {
+                            item.task.run()
+                        }.onFailure {
+                            throw SplashException(it)
+                        }
+                        finishedTaskCount.incrementAndGet()
+                        item.isRunning = false
+                        item.isFinished = true
+                    }
+                }
+            jobs.joinAll()
+        }.invokeOnCompletion {
+            AllSettings.javaRuntime.apply {
+                //检查并设置默认的Java环境
+                if (getValue().isEmpty()) save(Jre.JRE_8.jreName)
+            }
+            swapToMain()
+        }
+    }
+
+    private fun checkTasksToMain(): Boolean {
+        val toMain = finishedTaskCount.get() >= unpackItems.size
+        if (toMain) {
+            lInfo("All content that needs to be extracted is already the latest version!")
+            swapToMain()
+        }
+        return toMain
+    }
+
+    private fun swapToMain() {
+        startActivity(Intent(this, MainActivity::class.java))
+        finish()
+    }
+}

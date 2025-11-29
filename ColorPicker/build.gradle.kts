@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.movtery.colorpicker"
+    namespace = "com.hazender.colorpicker"
     compileSdk = 36
 
     defaultConfig {
