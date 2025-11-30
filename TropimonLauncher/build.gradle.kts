@@ -240,6 +240,7 @@ dependencies {
     //Project
     implementation(project(":LayerController"))
     implementation(project(":ColorPicker"))
+    implementation(project(":MobileGlues"))
     //Utils
     implementation(libs.bytehook)
     implementation(libs.gson)
