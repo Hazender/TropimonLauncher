@@ -75,8 +75,8 @@ fun TextRailItem(
     selectedPadding: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
     unSelectedPadding: PaddingValues = selectedPadding,
     shape: Shape = MaterialTheme.shapes.extraLarge,
-    backgroundColor: Color = NavigationRailItemDefaults.colors().selectedIndicatorColor,
-    selectedContentColor: Color = NavigationRailItemDefaults.colors().selectedIconColor,
+    backgroundColor: Color = MaterialTheme.colorScheme.outlineVariant,
+    selectedContentColor: Color = MaterialTheme.colorScheme.primary,
     unselectedContentColor: Color = NavigationRailItemDefaults.colors().unselectedIconColor
 ) {
     val animationProgress by animateFloatAsState(

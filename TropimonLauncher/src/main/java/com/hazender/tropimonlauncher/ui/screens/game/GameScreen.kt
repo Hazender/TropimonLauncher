@@ -19,8 +19,15 @@
 package com.hazender.tropimonlauncher.ui.screens.game
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Arrangement
@@ -31,7 +38,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,10 +50,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
@@ -75,7 +84,6 @@ import com.hazender.tropimonlauncher.game.support.touch_controller.touchControll
 import com.hazender.tropimonlauncher.game.support.touch_controller.touchControllerTouchModifier
 import com.hazender.tropimonlauncher.game.version.installed.Version
 import com.hazender.tropimonlauncher.setting.AllSettings
-import com.hazender.tropimonlauncher.setting.enums.isLauncherInDarkTheme
 import com.hazender.tropimonlauncher.setting.enums.toAction
 import com.hazender.tropimonlauncher.ui.components.BackgroundCard
 import com.hazender.tropimonlauncher.ui.components.MenuState
@@ -505,8 +513,7 @@ fun GameScreen(
                 opacity = (AllSettings.controlsOpacity.state.toFloat() / 100f).coerceIn(0f, 1f),
                 markPointerAsMoveOnly = { viewModel.moveOnlyPointers.add(it) },
                 isCursorGrabbing = ZLBridgeStates.cursorMode == CURSOR_DISABLED,
-                hideLayerWhen = viewModel.controlLayerHideState,
-                isDark = isLauncherInDarkTheme()
+                hideLayerWhen = viewModel.controlLayerHideState
             ) {
                 val transformableState = rememberTransformableState { _, offsetChange, _ ->
                     incrementScreenOffset(offsetChange.copy(x = 0f)) //固定X坐标，只允许移动Y坐标
@@ -690,6 +697,17 @@ private fun GameInfoBox(
     version: Version,
     isGameRendering: Boolean
 ) {
+    val infiniteTransition = rememberInfiniteTransition(label = "loading-rotation")
+    val rotation by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(4000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "rotation"
+    )
+
     AnimatedVisibility(
         visible = !isGameRendering,
         enter = fadeIn(),
@@ -705,11 +723,14 @@ private fun GameInfoBox(
                 modifier = Modifier.padding(16.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.CenterVertically)
+                Image(
+                    painter = painterResource(id = R.drawable.sealcircle),
+                    contentDescription = stringResource(R.string.game_loading),
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .size(48.dp)
+                        .rotate(rotation)
                 )
-
-                //提示信息
                 Column(
                     modifier = Modifier.weight(1f, fill = false),
                     verticalArrangement = Arrangement.spacedBy(2.dp)

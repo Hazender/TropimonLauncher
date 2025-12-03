@@ -38,7 +38,6 @@ import androidx.compose.ui.window.DialogProperties
 import com.hazender.layer_controller.layout.RendererStyleBox
 import com.hazender.layer_controller.observable.ObservableButtonStyle
 import com.hazender.tropimonlauncher.R
-import com.hazender.tropimonlauncher.setting.enums.isLauncherInDarkTheme
 import com.hazender.tropimonlauncher.ui.components.MarqueeText
 import com.hazender.tropimonlauncher.ui.components.fadeEdge
 import com.hazender.tropimonlauncher.ui.screens.main.control_editor.InfoLayoutItem
@@ -154,8 +153,7 @@ private fun StyleItem(
             modifier = Modifier.size(50.dp),
             style = style,
             text = "abc",
-            isPressed = false,
-            isDark = isLauncherInDarkTheme()
+            isPressed = false
         )
         Spacer(modifier = Modifier.width(8.dp))
         MarqueeText(

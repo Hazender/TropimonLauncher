@@ -23,5 +23,4 @@ rootProject.name = "TropimonLauncher"
 include(":TropimonLauncher")
 include(":LWJGL")
 include(":LayerController")
-include(":ColorPicker")
 include(":MobileGlues")

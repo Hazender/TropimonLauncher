@@ -27,6 +27,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -38,6 +39,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -64,10 +66,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
@@ -81,7 +86,6 @@ import com.hazender.tropimonlauncher.R
 import com.hazender.tropimonlauncher.coroutine.Task
 import com.hazender.tropimonlauncher.coroutine.TaskSystem
 import com.hazender.tropimonlauncher.game.version.installed.Version
-import com.hazender.tropimonlauncher.info.InfoDistributor
 import com.hazender.tropimonlauncher.setting.AllSettings
 import com.hazender.tropimonlauncher.ui.components.BackgroundCard
 import com.hazender.tropimonlauncher.ui.components.CardTitleLayout
@@ -118,63 +122,97 @@ fun MainScreen(
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val tasks by TaskSystem.tasksFlow.collectAsState()
-
     val isTaskMenuExpanded = AllSettings.launcherTaskMenuExpanded.state
 
     fun changeTasksExpandedState() {
         AllSettings.launcherTaskMenuExpanded.save(!isTaskMenuExpanded)
     }
 
-    /** 回到主页面通用函数 */
     val toMainScreen: () -> Unit = {
         screenBackStackModel.mainScreen.clearWith(NormalNavKey.LauncherMain)
     }
 
     val isBackgroundValid = LocalBackgroundViewModel.current?.isValid == true
     val launcherBackgroundOpacity = AllSettings.launcherBackgroundOpacity.state.toFloat() / 100f
-
     val topBarColor = MaterialTheme.colorScheme.surfaceContainer
     val backgroundColor = MaterialTheme.colorScheme.surface
+    val currentKey = screenBackStackModel.mainScreen.currentKey
+    val inLauncherScreen = currentKey == null || currentKey is NormalNavKey.LauncherMain
+    val surfaceAlpha = if (inLauncherScreen) 0f else 0.5f
+
+    // --- MODIFICATION END ---
+
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = if (isBackgroundValid) {
-            backgroundColor.copy(alpha = launcherBackgroundOpacity)
-        } else {
-            backgroundColor
-        },
+        color = backgroundColor.copy(alpha = surfaceAlpha),
         contentColor = MaterialTheme.colorScheme.onSurface
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            TopBar(
+            Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(40.dp)
-                    .zIndex(10f),
-                mainScreenKey = screenBackStackModel.mainScreen.currentKey,
-                taskRunning = tasks.isEmpty(),
-                isTasksExpanded = isTaskMenuExpanded,
-                color = if (isBackgroundValid) {
-                    topBarColor.copy(alpha = launcherBackgroundOpacity)
-                } else {
-                    topBarColor
-                },
-                contentColor = MaterialTheme.colorScheme.onSurface,
-                onScreenBack = {
-                    screenBackStackModel.mainScreen.backStack.removeFirstOrNull()
-                },
-                toMainScreen = toMainScreen,
-                toSettingsScreen = {
-                    screenBackStackModel.mainScreen.removeAndNavigateTo(
-                        removes = screenBackStackModel.clearBeforeNavKeys,
-                        screenKey = screenBackStackModel.settingsScreen
-                    )
-                },
-                toDownloadScreen = {
-                    screenBackStackModel.navigateToDownload()
-                }
+                    .height(42.dp),
+                color = if (isBackgroundValid) topBarColor.copy(alpha = launcherBackgroundOpacity) else topBarColor,
+                tonalElevation = 3.dp
             ) {
-                changeTasksExpandedState()
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.TopCenter
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .offset(y = (0.5).dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        val shadowColor = Color.Black.copy(alpha = 0.4f)
+                        val shadowBlur = 0.2.dp
+                        val shadowOffset = 0.2.dp
+
+                        Image(
+                            painter = painterResource(id = R.drawable.sealcircle),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .height(36.dp)
+                                .offset(x = shadowOffset, y = shadowOffset)
+                                .blur(shadowBlur),
+                            colorFilter = ColorFilter.tint(shadowColor)
+                        )
+                        Image(
+                            painter = painterResource(id = R.drawable.tropimon_text),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .height(34.dp)
+                                .offset(x = shadowOffset, y = shadowOffset)
+                                .blur(shadowBlur),
+                            colorFilter = ColorFilter.tint(shadowColor)
+                        )
+                    }
+
+                    TopBar(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(40.dp),
+                        mainScreenKey = screenBackStackModel.mainScreen.currentKey,
+                        taskRunning = tasks.isEmpty(),
+                        isTasksExpanded = isTaskMenuExpanded,
+                        color = Color.Transparent,
+                        contentColor = MaterialTheme.colorScheme.onSurface,
+                        onScreenBack = { screenBackStackModel.mainScreen.backStack.removeFirstOrNull() },
+                        toMainScreen = toMainScreen,
+                        toSettingsScreen = {
+                            screenBackStackModel.mainScreen.removeAndNavigateTo(
+                                removes = screenBackStackModel.clearBeforeNavKeys,
+                                screenKey = screenBackStackModel.settingsScreen
+                            )
+                        },
+                        toDownloadScreen = { screenBackStackModel.navigateToDownload() }
+                    ) {
+                        changeTasksExpandedState()
+                    }
+                }
             }
 
             Box(
@@ -224,17 +262,16 @@ private fun TopBar(
     val inLauncherScreen = mainScreenKey == null || mainScreenKey is NormalNavKey.LauncherMain
     val inDownloadScreen = mainScreenKey is NestedNavKey.Download
     val inSettingsScreen = mainScreenKey is NestedNavKey.Settings
+    val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
 
     Surface(
         modifier = modifier,
         color = color,
         contentColor = contentColor,
-        tonalElevation = 3.dp
+        tonalElevation = 0.dp
     ) {
-        ConstraintLayout {
+        ConstraintLayout(modifier = Modifier.fillMaxSize()) {
             val (backCenter, title, endButtons) = createRefs()
-
-            val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
 
             Row(
                 modifier = Modifier
@@ -245,9 +282,7 @@ private fun TopBar(
                     }
                     .fillMaxHeight()
             ) {
-                AnimatedVisibility(
-                    visible = !inLauncherScreen
-                ) {
+                AnimatedVisibility(visible = !inLauncherScreen) {
                     Row(modifier = Modifier.fillMaxHeight()) {
                         Spacer(Modifier.width(12.dp))
 
@@ -255,10 +290,7 @@ private fun TopBar(
                             modifier = Modifier.fillMaxHeight(),
                             onClick = {
                                 if (!inLauncherScreen) {
-                                    //不在主屏幕时才允许返回
-                                    backDispatcher?.onBackPressed() ?: run {
-                                        onScreenBack()
-                                    }
+                                    backDispatcher?.onBackPressed() ?: onScreenBack()
                                 }
                             }
                         ) {
@@ -271,12 +303,7 @@ private fun TopBar(
 
                         IconButton(
                             modifier = Modifier.fillMaxHeight(),
-                            onClick = {
-                                if (!inLauncherScreen) {
-                                    //不在主屏幕时才允许回到主页面
-                                    toMainScreen()
-                                }
-                            }
+                            onClick = { if (!inLauncherScreen) toMainScreen() }
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.Home,
@@ -287,17 +314,22 @@ private fun TopBar(
                 }
             }
 
-            AnimatedVisibility(
+            Row(
                 modifier = Modifier
-                    .constrainAs(title) {
-                        centerVerticallyTo(parent)
-                        start.linkTo(backCenter.end, margin = 16.dp)
-                    },
-                enter = fadeIn(),
-                exit = fadeOut(),
-                visible = inLauncherScreen //仅在启动器主屏幕显示
+                    .constrainAs(title) { centerTo(parent) },
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(text = InfoDistributor.LAUNCHER_IDENTIFIER)
+                Image(
+                    painter = painterResource(id = R.drawable.sealcircle),
+                    contentDescription = null,
+                    modifier = Modifier.height(36.dp)
+                )
+                Image(
+                    painter = painterResource(id = R.drawable.tropimon_text),
+                    contentDescription = null,
+                    modifier = Modifier.height(34.dp)
+                )
             }
 
             Row(
@@ -310,15 +342,7 @@ private fun TopBar(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                AnimatedVisibility(
-                    visible = !(isTasksExpanded || taskRunning),
-                    enter = slideInVertically(
-                        initialOffsetY = { -50 }
-                    ) + fadeIn(),
-                    exit = slideOutVertically(
-                        targetOffsetY = { -50 }
-                    ) + fadeOut()
-                ) {
+                AnimatedVisibility(visible = !(isTasksExpanded || taskRunning)) {
                     Row(
                         modifier = Modifier
                             .clip(shape = MaterialTheme.shapes.large)
@@ -341,19 +365,14 @@ private fun TopBar(
                     selected = inDownloadScreen,
                     icon = Icons.Filled.Download,
                     text = stringResource(R.string.generic_download),
-                    onClick = {
-                        if (!inDownloadScreen) toDownloadScreen()
-                    },
+                    onClick = { if (!inDownloadScreen) toDownloadScreen() },
                     color = contentColor
                 )
-
                 TopBarRailItem(
                     selected = inSettingsScreen,
                     icon = Icons.Filled.Settings,
                     text = stringResource(R.string.generic_setting),
-                    onClick = {
-                        if (!inSettingsScreen) toSettingsScreen()
-                    },
+                    onClick = { if (!inSettingsScreen) toSettingsScreen() },
                     color = contentColor
                 )
             }
@@ -415,7 +434,6 @@ private fun NavigationUI(
     }
 
     if (backStack.isNotEmpty()) {
-        /** 导航至版本详细信息屏幕 */
         val navigateToVersions: (Version) -> Unit = { version ->
             screenBackStackModel.mainScreen.navigateTo(
                 screenKey = NestedNavKey.VersionSettings(version),

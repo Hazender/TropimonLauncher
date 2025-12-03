@@ -70,6 +70,7 @@ import com.hazender.tropimonlauncher.ui.screens.content.elements.CategoryItem
 import com.hazender.tropimonlauncher.ui.screens.navigateOnce
 import com.hazender.tropimonlauncher.ui.screens.onBack
 import com.hazender.tropimonlauncher.ui.screens.rememberTransitionSpec
+import com.hazender.tropimonlauncher.ui.theme.TropimonTheme
 import com.hazender.tropimonlauncher.utils.animation.swapAnimateDpAsState
 import com.hazender.tropimonlauncher.viewmodel.ErrorViewModel
 import com.hazender.tropimonlauncher.viewmodel.EventViewModel
@@ -175,7 +176,8 @@ private fun TabMenu(
                         maxLines = 1,
                         style = MaterialTheme.typography.labelMedium
                     )
-                }
+                },
+                colors = TropimonTheme.navigationRailItemColors()
             )
 
             Spacer(modifier = Modifier.height(8.dp))

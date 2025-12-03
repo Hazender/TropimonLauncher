@@ -47,7 +47,7 @@ class BackgroundViewModel(): ViewModel() {
     /**
      * 背景文件是否有效（存在，且是有效的视频或图片）
      */
-    var isValid by mutableStateOf(false)
+    var isValid by mutableStateOf(true)
         private set
 
     /**
@@ -76,7 +76,7 @@ class BackgroundViewModel(): ViewModel() {
         withContext(Dispatchers.Main) {
             isImage = isImage0
             isVideo = isVideo0
-            isValid = backgroundFile.exists() && (isImage0 || isVideo0)
+            isValid = true
             refreshTrigger = !refreshTrigger
         }
     }

@@ -60,14 +60,12 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
-import com.hazender.colorpicker.rememberColorPickerController
 import com.hazender.layer_controller.data.ButtonShape
 import com.hazender.layer_controller.data.buttonShapeRange
 import com.hazender.layer_controller.layout.RendererStyleBox
 import com.hazender.layer_controller.observable.ObservableButtonStyle
 import com.hazender.layer_controller.observable.ObservableStyleConfig
 import com.hazender.tropimonlauncher.R
-import com.hazender.tropimonlauncher.ui.components.ColorPickerDialog
 import com.hazender.tropimonlauncher.ui.components.MarqueeText
 import com.hazender.tropimonlauncher.ui.components.itemLayoutColorOnSurface
 import com.hazender.tropimonlauncher.ui.screens.main.control_editor.InfoLayoutSliderItem
@@ -252,7 +250,6 @@ private fun RendererBox(
             //浅色 普通状态
             RendererStyleBox(
                 style = style,
-                isDark = false,
                 isPressed = false,
                 text = "abc",
                 modifier = boxModifier.constrainAs(lightNormal) {
@@ -266,7 +263,6 @@ private fun RendererBox(
             //浅色 按下状态
             RendererStyleBox(
                 style = style,
-                isDark = false,
                 isPressed = true,
                 text = "abc",
                 modifier = boxModifier.constrainAs(lightPressed) {
@@ -280,7 +276,6 @@ private fun RendererBox(
             //暗色 普通状态
             RendererStyleBox(
                 style = style,
-                isDark = true,
                 isPressed = false,
                 text = "abc",
                 modifier = boxModifier.constrainAs(darkNormal) {
@@ -294,7 +289,6 @@ private fun RendererBox(
             //暗色 按下状态
             RendererStyleBox(
                 style = style,
-                isDark = true,
                 isPressed = true,
                 text = "abc",
                 modifier = boxModifier.constrainAs(darkPressed) {
@@ -332,14 +326,8 @@ private fun StyleConfigEditor(
             itemModifier = itemModifier,
             alpha = styleConfig.alpha,
             onAlphaChange = { styleConfig.alpha = it },
-            backgroundColor = styleConfig.backgroundColor,
-            onBackgroundColorChange = { styleConfig.backgroundColor = it },
-            contentColor = styleConfig.contentColor,
-            onContentColorChange = { styleConfig.contentColor = it },
             borderWidth = styleConfig.borderWidth,
             onBorderWidthChange = { styleConfig.borderWidth = it },
-            borderColor = styleConfig.borderColor,
-            onBorderColorChange = { styleConfig.borderColor = it },
             borderRadius = styleConfig.borderRadius,
             onBorderRadiusChange = { styleConfig.borderRadius = it }
         )
@@ -364,14 +352,8 @@ private fun StyleConfigEditor(
             itemModifier = itemModifier,
             alpha = styleConfig.pressedAlpha,
             onAlphaChange = { styleConfig.pressedAlpha = it },
-            backgroundColor = styleConfig.pressedBackgroundColor,
-            onBackgroundColorChange = { styleConfig.pressedBackgroundColor = it },
-            contentColor = styleConfig.pressedContentColor,
-            onContentColorChange = { styleConfig.pressedContentColor = it },
             borderWidth = styleConfig.pressedBorderWidth,
             onBorderWidthChange = { styleConfig.pressedBorderWidth = it },
-            borderColor = styleConfig.pressedBorderColor,
-            onBorderColorChange = { styleConfig.pressedBorderColor = it },
             borderRadius = styleConfig.pressedBorderRadius,
             onBorderRadiusChange = { styleConfig.pressedBorderRadius = it }
         )
@@ -382,14 +364,8 @@ private fun LazyListScope.commonStyleConfig(
     itemModifier: Modifier,
     alpha: Float,
     onAlphaChange: (Float) -> Unit,
-    backgroundColor: Color,
-    onBackgroundColorChange: (Color) -> Unit,
-    contentColor: Color,
-    onContentColorChange: (Color) -> Unit,
     borderWidth: Int,
     onBorderWidthChange: (Int) -> Unit,
-    borderColor: Color,
-    onBorderColorChange: (Color) -> Unit,
     borderRadius: ButtonShape,
     onBorderRadiusChange: (ButtonShape) -> Unit
 ) {
@@ -406,26 +382,6 @@ private fun LazyListScope.commonStyleConfig(
         )
     }
 
-    //背景颜色
-    item {
-        InfoLayoutColorItem(
-            modifier = itemModifier,
-            title = stringResource(R.string.control_editor_edit_style_config_background_color),
-            color = backgroundColor,
-            onColorChanged = onBackgroundColorChange
-        )
-    }
-
-    //内容颜色
-    item {
-        InfoLayoutColorItem(
-            modifier = itemModifier,
-            title = stringResource(R.string.control_editor_edit_style_config_content_color),
-            color = contentColor,
-            onColorChanged = onContentColorChange
-        )
-    }
-
     //边框粗细
     item {
         InfoLayoutSliderItem(
@@ -437,16 +393,6 @@ private fun LazyListScope.commonStyleConfig(
             decimalFormat = "#0",
             suffix = "Dp",
             fineTuningStep = 1f,
-        )
-    }
-
-    //边框颜色
-    item {
-        InfoLayoutColorItem(
-            modifier = itemModifier,
-            title = stringResource(R.string.control_editor_edit_style_config_border_color),
-            color = borderColor,
-            onColorChanged = onBorderColorChange
         )
     }
 
@@ -501,46 +447,3 @@ private fun LazyListScope.commonStyleConfig(
         }
     }
 }
-
-@Composable
-private fun InfoLayoutColorItem(
-    modifier: Modifier = Modifier,
-    title: String,
-    color: Color,
-    onColorChanged: (Color) -> Unit
-) {
-    var showColorDialog by remember { mutableStateOf(false) }
-
-    InfoLayoutTextItem(
-        modifier = modifier,
-        title = title,
-        onClick = {
-            showColorDialog = true
-        }
-    )
-
-    if (showColorDialog) {
-        var tempColor by remember { mutableStateOf(color) }
-        val colorController = rememberColorPickerController(initialColor = tempColor)
-
-        val currentColor by remember(colorController) { colorController.color }
-
-        LaunchedEffect(currentColor) {
-            onColorChanged(currentColor)
-        }
-
-        ColorPickerDialog(
-            colorController = colorController,
-            onCancel = {
-                onColorChanged(colorController.getOriginalColor())
-                showColorDialog = false
-            },
-            onConfirm = { color ->
-                showColorDialog = false
-                onColorChanged(color)
-            }
-        )
-    }
-}
-
-

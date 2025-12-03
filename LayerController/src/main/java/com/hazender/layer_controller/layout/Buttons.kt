@@ -153,14 +153,13 @@ fun RendererStyleBox(
     style: ObservableButtonStyle,
     modifier: Modifier = Modifier,
     text: String = "",
-    isDark: Boolean,
     isPressed: Boolean
 ) {
     Box(
-        modifier = modifier.buttonStyle(style = style, isDark = isDark, isPressed = isPressed),
+        modifier = modifier.buttonStyle(style = style, isPressed = isPressed),
         contentAlignment = Alignment.Center
     ) {
-        val color by buttonContentColorAsState(style = style, isDark = isDark, isPressed = isPressed)
+        val color by buttonContentColorAsState(style = style, isPressed = isPressed)
         RtLText(
             text = text,
             color = color

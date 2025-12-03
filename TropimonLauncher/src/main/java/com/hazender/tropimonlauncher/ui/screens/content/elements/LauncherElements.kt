@@ -27,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import coil3.ImageLoader
 import coil3.compose.AsyncImage
@@ -253,6 +254,13 @@ fun Background(
                 modifier = modifier,
                 imageFile = viewModel.backgroundFile,
                 refreshTrigger = viewModel.refreshTrigger
+            )
+        } else {
+            androidx.compose.foundation.Image(
+                painter = painterResource(R.drawable.tropimon_background),
+                contentDescription = null,
+                modifier = modifier,
+                contentScale = ContentScale.Crop
             )
         }
     }

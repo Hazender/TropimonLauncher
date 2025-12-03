@@ -24,12 +24,10 @@ import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.hazender.tropimonlauncher.setting.AllSettings
-import com.hazender.tropimonlauncher.setting.enums.isLauncherInDarkTheme
 import com.hazender.tropimonlauncher.viewmodel.influencedByBackground
 
 /**
@@ -50,11 +48,7 @@ fun Color.desaturate(factor: Float): Color {
 fun itemLayoutColor(
     influencedByBackground: Boolean = true
 ): Color {
-    val color = if (isLauncherInDarkTheme()) {
-        lerp(MaterialTheme.colorScheme.surfaceVariant, Color.Black, 0.15f)
-    } else {
-        MaterialTheme.colorScheme.surface
-    }
+    val color = MaterialTheme.colorScheme.surfaceBright
     return influencedByBackgroundColor(
         color = color,
         enabled = influencedByBackground
@@ -63,7 +57,7 @@ fun itemLayoutColor(
 
 @Composable
 fun itemLayoutColorOnSurface(elevation: Dp = 2.dp): Color {
-    return MaterialTheme.colorScheme.surfaceColorAtElevation(elevation)
+    return MaterialTheme.colorScheme.surfaceBright
 }
 
 /**
@@ -74,7 +68,7 @@ fun itemLayoutColorOnSurface(elevation: Dp = 2.dp): Color {
 fun backgroundLayoutColor(
     influencedByBackground: Boolean = true
 ): Color {
-    val color = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp)
+    val color = MaterialTheme.colorScheme.surfaceBright
     return influencedByBackgroundColor(
         color = color,
         enabled = influencedByBackground

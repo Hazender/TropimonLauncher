@@ -42,6 +42,7 @@ import androidx.compose.material.icons.outlined.VideogameAsset
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -72,6 +73,7 @@ import com.hazender.tropimonlauncher.ui.screens.content.settings.RendererSetting
 import com.hazender.tropimonlauncher.ui.screens.navigateOnce
 import com.hazender.tropimonlauncher.ui.screens.onBack
 import com.hazender.tropimonlauncher.ui.screens.rememberTransitionSpec
+import com.hazender.tropimonlauncher.ui.theme.TropimonTheme
 import com.hazender.tropimonlauncher.utils.animation.swapAnimateDpAsState
 import com.hazender.tropimonlauncher.viewmodel.ErrorViewModel
 import com.hazender.tropimonlauncher.viewmodel.EventViewModel
@@ -174,7 +176,8 @@ private fun TabMenu(
                         maxLines = 1,
                         style = MaterialTheme.typography.labelMedium
                     )
-                }
+                },
+                colors = TropimonTheme.navigationRailItemColors()
             )
 
             Spacer(modifier = Modifier.height(8.dp))

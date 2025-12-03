@@ -31,7 +31,6 @@ import androidx.compose.ui.unit.IntSize
 import com.hazender.layer_controller.ControlBoxLayout
 import com.hazender.layer_controller.data.HideLayerWhen
 import com.hazender.layer_controller.observable.ObservableControlLayout
-import com.hazender.tropimonlauncher.setting.enums.isLauncherInDarkTheme
 import com.hazender.tropimonlauncher.ui.control.mouse.SwitchableMouseLayout
 
 /**
@@ -68,7 +67,6 @@ fun BoxWithConstraintsScope.PreviewControlBox(
         markPointerAsMoveOnly = { moveOnlyPointers.add(it) },
         isCursorGrabbing = previewScenario.isCursorGrabbing,
         hideLayerWhen = previewHideLayerWhen,
-        isDark = isLauncherInDarkTheme()
     ) {
         PreviewMouseLayout(
             modifier = Modifier.fillMaxSize(),

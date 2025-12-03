@@ -239,7 +239,6 @@ dependencies {
     implementation(libs.reorderable)
     //Project
     implementation(project(":LayerController"))
-    implementation(project(":ColorPicker"))
     implementation(project(":MobileGlues"))
     //Utils
     implementation(libs.bytehook)

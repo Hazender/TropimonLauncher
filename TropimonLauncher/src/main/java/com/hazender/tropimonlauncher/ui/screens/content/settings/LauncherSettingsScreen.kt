@@ -9,8 +9,8 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
@@ -39,32 +39,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
-import com.hazender.colorpicker.rememberColorPickerController
 import com.hazender.tropimonlauncher.R
 import com.hazender.tropimonlauncher.coroutine.Task
 import com.hazender.tropimonlauncher.coroutine.TaskSystem
 import com.hazender.tropimonlauncher.path.PathManager
 import com.hazender.tropimonlauncher.setting.AllSettings
-import com.hazender.tropimonlauncher.setting.enums.DarkMode
 import com.hazender.tropimonlauncher.setting.enums.MirrorSourceType
 import com.hazender.tropimonlauncher.setting.unit.floatRange
 import com.hazender.tropimonlauncher.ui.base.BaseScreen
 import com.hazender.tropimonlauncher.ui.components.AnimatedColumn
-import com.hazender.tropimonlauncher.ui.components.ColorPickerDialog
 import com.hazender.tropimonlauncher.ui.components.IconTextButton
 import com.hazender.tropimonlauncher.ui.components.SimpleAlertDialog
 import com.hazender.tropimonlauncher.ui.screens.NestedNavKey
 import com.hazender.tropimonlauncher.ui.screens.NormalNavKey
 import com.hazender.tropimonlauncher.ui.screens.content.settings.layouts.SettingsBackground
 import com.hazender.tropimonlauncher.ui.screens.content.settings.layouts.SettingsLayoutScope
-import com.hazender.tropimonlauncher.ui.theme.ColorThemeType
 import com.hazender.tropimonlauncher.utils.animation.TransitionAnimationType
 import com.hazender.tropimonlauncher.utils.file.shareFile
 import com.hazender.tropimonlauncher.utils.logging.Logger
@@ -76,12 +70,6 @@ import com.hazender.tropimonlauncher.viewmodel.EventViewModel
 import com.hazender.tropimonlauncher.viewmodel.LocalBackgroundViewModel
 import kotlinx.coroutines.Dispatchers
 import java.io.File
-
-private sealed interface CustomColorOperation {
-    data object None : CustomColorOperation
-    /** 展示自定义主题颜色 Dialog */
-    data object Dialog: CustomColorOperation
-}
 
 @Composable
 fun LauncherSettingsScreen(
@@ -108,47 +96,8 @@ fun LauncherSettingsScreen(
                 SettingsBackground(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                 ) {
-                    var customColorOperation by remember { mutableStateOf<CustomColorOperation>(CustomColorOperation.None) }
-                    CustomColorOperation(
-                        customColorOperation = customColorOperation,
-                        updateOperation = { customColorOperation = it }
-                    )
-
-                    EnumSettingsLayout(
-                        modifier = Modifier.fillMaxWidth(),
-                        unit = AllSettings.launcherColorTheme,
-                        title = stringResource(R.string.settings_launcher_color_theme_title),
-                        summary = stringResource(R.string.settings_launcher_color_theme_summary),
-                        entries = ColorThemeType.entries,
-                        getRadioEnable = { enum ->
-                            if (enum == ColorThemeType.DYNAMIC) Build.VERSION.SDK_INT >= Build.VERSION_CODES.S else true
-                        },
-                        getRadioText = { enum ->
-                            when (enum) {
-                                ColorThemeType.DYNAMIC -> stringResource(R.string.theme_color_dynamic)
-                                ColorThemeType.EMBERMIRE -> stringResource(R.string.theme_color_embermire)
-                                ColorThemeType.VELVET_ROSE -> stringResource(R.string.theme_color_velvet_rose)
-                                ColorThemeType.MISTWAVE -> stringResource(R.string.theme_color_mistwave)
-                                ColorThemeType.GLACIER -> stringResource(R.string.theme_color_glacier)
-                                ColorThemeType.VERDANTFIELD -> stringResource(R.string.theme_color_verdant_field)
-                                ColorThemeType.URBAN_ASH -> stringResource(R.string.theme_color_urban_ash)
-                                ColorThemeType.VERDANT_DAWN -> stringResource(R.string.theme_color_verdant_dawn)
-                                ColorThemeType.CUSTOM -> stringResource(R.string.generic_custom)
-                            }
-                        },
-                        maxItemsInEachRow = 5,
-                        onRadioClick = { enum ->
-                            if (enum == ColorThemeType.CUSTOM) customColorOperation = CustomColorOperation.Dialog
-                        }
-                    )
-
-                    ListSettingsLayout(
-                        modifier = Modifier.fillMaxWidth(),
-                        unit = AllSettings.launcherDarkMode,
-                        items = DarkMode.entries,
-                        title = stringResource(R.string.settings_launcher_dark_mode_title),
-                        getItemText = { stringResource(it.textRes) }
-                    )
+                    // --- MODIFICATION START ---
+                    // Les options pour le thème et le mode sombre ont été retirées.
 
                     SwitchSettingsLayout(
                         modifier = Modifier.fillMaxWidth(),
@@ -159,6 +108,7 @@ fun LauncherSettingsScreen(
                             eventViewModel.sendEvent(EventViewModel.Event.RefreshFullScreen)
                         }
                     )
+                    // --- MODIFICATION END ---
                 }
             }
 
@@ -288,40 +238,7 @@ fun LauncherSettingsScreen(
     }
 }
 
-@Composable
-private fun CustomColorOperation(
-    customColorOperation: CustomColorOperation,
-    updateOperation: (CustomColorOperation) -> Unit
-) {
-    when (customColorOperation) {
-        is CustomColorOperation.None -> {}
-        is CustomColorOperation.Dialog -> {
-            var tempColor by remember {
-                mutableStateOf(Color(AllSettings.launcherCustomColor.getValue()))
-            }
-            val colorController = rememberColorPickerController(initialColor = tempColor)
-
-            val currentColor by remember(colorController) { colorController.color }
-
-            ColorPickerDialog(
-                colorController = colorController,
-                onChangeFinished = {
-                    AllSettings.launcherCustomColor.updateState(currentColor.toArgb())
-                },
-                onCancel = {
-                    //还原颜色
-                    AllSettings.launcherCustomColor.updateState(colorController.getOriginalColor().toArgb())
-                    updateOperation(CustomColorOperation.None)
-                },
-                onConfirm = { selectedColor ->
-                    AllSettings.launcherCustomColor.save(selectedColor.toArgb())
-                    updateOperation(CustomColorOperation.None)
-                },
-                showAlpha = false
-            )
-        }
-    }
-}
+// ... le reste du fichier reste inchangé
 
 private sealed interface BackgroundOperation {
     data object None : BackgroundOperation

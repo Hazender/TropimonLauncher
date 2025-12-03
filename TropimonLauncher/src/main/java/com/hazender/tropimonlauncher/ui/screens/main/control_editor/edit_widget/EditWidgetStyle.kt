@@ -35,7 +35,6 @@ import com.hazender.layer_controller.observable.ObservableNormalData
 import com.hazender.layer_controller.observable.ObservableTextData
 import com.hazender.layer_controller.observable.ObservableWidget
 import com.hazender.tropimonlauncher.R
-import com.hazender.tropimonlauncher.setting.enums.isLauncherInDarkTheme
 import com.hazender.tropimonlauncher.ui.components.MarqueeText
 import com.hazender.tropimonlauncher.ui.screens.main.control_editor.InfoLayoutItem
 import com.hazender.tropimonlauncher.ui.screens.main.control_editor.InfoLayoutTextItem
@@ -129,7 +128,6 @@ private fun ChoseStyleItem(
                 modifier = Modifier.size(50.dp),
                 style = style,
                 text = "abc",
-                isDark = isLauncherInDarkTheme(),
                 isPressed = false
             )
             Spacer(modifier = Modifier.height(4.dp))

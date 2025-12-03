@@ -48,7 +48,6 @@ import com.hazender.layer_controller.observable.ObservableControlLayer
 import com.hazender.layer_controller.observable.ObservableWidget
 import com.hazender.tropimonlauncher.R
 import com.hazender.tropimonlauncher.setting.AllSettings
-import com.hazender.tropimonlauncher.setting.enums.isLauncherInDarkTheme
 import com.hazender.tropimonlauncher.ui.components.MenuState
 import com.hazender.tropimonlauncher.ui.components.ProgressDialog
 import com.hazender.tropimonlauncher.ui.components.SimpleAlertDialog
@@ -115,8 +114,7 @@ fun BoxWithConstraintsScope.ControlEditor(
             enableSnap = AllSettings.editorEnableWidgetSnap.state,
             snapInAllLayers = AllSettings.editorSnapInAllLayers.state,
             snapMode = AllSettings.editorWidgetSnapMode.state,
-            focusedLayer = viewModel.selectedLayer,
-            isDark = isLauncherInDarkTheme()
+            focusedLayer = viewModel.selectedLayer
         )
     }
 

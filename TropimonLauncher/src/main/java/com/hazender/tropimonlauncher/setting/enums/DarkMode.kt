@@ -41,14 +41,3 @@ enum class DarkMode(val textRes: Int) {
  * 当前启动器是否处于深色主题模式中，和 [isSystemInDarkTheme] 函数使用方法一致，
  * 但引入了启动器的设置系统的干预
  */
-@Composable
-fun isLauncherInDarkTheme(): Boolean {
-    val value = AllSettings.launcherDarkMode.state
-    return key(value) {
-        when (value) {
-            DarkMode.Enable -> true
-            DarkMode.Disable -> false
-            DarkMode.FollowSystem -> isSystemInDarkTheme()
-        }
-    }
-}
