@@ -19,11 +19,6 @@
 package com.hazender.tropimonlauncher.game.renderer
 
 import android.content.Context
-import com.hazender.tropimonlauncher.game.renderer.renderers.FreedrenoRenderer
-import com.hazender.tropimonlauncher.game.renderer.renderers.GL4ESRenderer
-import com.hazender.tropimonlauncher.game.renderer.renderers.PanfrostRenderer
-import com.hazender.tropimonlauncher.game.renderer.renderers.VirGLRenderer
-import com.hazender.tropimonlauncher.game.renderer.renderers.VulkanZinkRenderer
 import com.hazender.tropimonlauncher.game.renderer.renderers.MobileGluesRenderer
 import com.hazender.tropimonlauncher.utils.device.Architecture
 import com.hazender.tropimonlauncher.utils.device.checkVulkanSupport
@@ -52,12 +47,7 @@ object Renderers {
         }
 
         addRenderers(
-            MobileGluesRenderer,
-            GL4ESRenderer,
-            VulkanZinkRenderer,
-            VirGLRenderer,
-            FreedrenoRenderer,
-            PanfrostRenderer
+            MobileGluesRenderer
         )
     }
 

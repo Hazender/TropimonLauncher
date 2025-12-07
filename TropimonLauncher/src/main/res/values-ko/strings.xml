@@ -58,13 +58,6 @@
     <string name="launcher_version_debug_warning">%s의 실험 버전을 사용 중입니다! 이 버전은 불안정할 수 있으며, 주로 기능 실험 및 사전 체험용으로 제공됩니다. 장기간 사용은 권장하지 않습니다! 사용 중 문제가 발생하면 GitHub를 통해 보고해 주시면 신속히 해결하겠습니다.</string>
     <string name="launcher_version_debug_warning_cant_close">이 경고는 해제할 수 없습니다</string>
     <string name="theme_color_dynamic">동적 (Android 12+)</string>
-    <string name="theme_color_embermire">엠버마이어</string>
-    <string name="theme_color_velvet_rose">벨벳 로즈</string>
-    <string name="theme_color_mistwave">미스트웨이브</string>
-    <string name="theme_color_glacier">글레이셔</string>
-    <string name="theme_color_verdant_field">버던트 트와일라잇</string>
-    <string name="theme_color_urban_ash">어반 애시</string>
-    <string name="theme_color_verdant_dawn">사일런트 포레스트 돈</string>
     <string name="theme_color_picker_title">색상 선택기</string>
     <string name="theme_color_picker_edit_hex">Hex 편집</string>
     <string name="theme_color_picker_edit_hex_invalid">잘못된 Hex 코드</string>

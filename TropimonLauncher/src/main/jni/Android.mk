@@ -22,19 +22,16 @@ LOCAL_SRC_FILES := \
     egl_bridge.c \
     ctxbridges/br_loader.c \
     ctxbridges/gl_bridge.c \
-    ctxbridges/osm_bridge.c \
     ctxbridges/egl_loader.c \
-    ctxbridges/osmesa_loader.c \
     ctxbridges/swap_interval_no_egl.c \
-    ctxbridges/virgl_bridge.c \
     environ/environ.c \
     logger/logger.c \
     input_bridge_v3.c \
     jre_launcher.c \
     utils.c \
     stdio_is.c \
-    java_exec_hooks.c \
-    lwjgl_dlopen_hook.c
+    java_exec_hooks.c
+LOCAL_LDFLAGS += -Wl,-z,max-page-size=16384
 
 ifeq ($(TARGET_ARCH_ABI),arm64-v8a)
 LOCAL_CFLAGS += -DADRENO_POSSIBLE
@@ -48,6 +45,7 @@ LOCAL_MODULE := exithook
 LOCAL_LDLIBS := -ldl -llog
 LOCAL_SHARED_LIBRARIES := bytehook pojavexec
 LOCAL_SRC_FILES := exit_hook.c
+LOCAL_LDFLAGS += -Wl,-z,max-page-size=16384
 include $(BUILD_SHARED_LIBRARY)
 
 
@@ -58,6 +56,7 @@ LOCAL_SRC_FILES := \
     driver_helper/driver_helper.c \
     driver_helper/nsbypass.c
 LOCAL_CFLAGS += -g -rdynamic
+LOCAL_LDFLAGS += -Wl,-z,max-page-size=16384
 
 ifeq ($(TARGET_ARCH_ABI),arm64-v8a)
 LOCAL_CFLAGS += -DADRENO_POSSIBLE
@@ -72,6 +71,7 @@ LOCAL_SRC_FILES := \
     linkerhook/linkerhook.cpp \
     linkerhook/linkerns.c
 LOCAL_LDFLAGS := -z global
+LOCAL_LDFLAGS += -Wl,-z,max-page-size=16384
 include $(BUILD_SHARED_LIBRARY)
 
 
@@ -79,11 +79,13 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := pojavexec_awt
 LOCAL_SRC_FILES := \
     awt_bridge.c
+LOCAL_LDFLAGS += -Wl,-z,max-page-size=16384
 include $(BUILD_SHARED_LIBRARY)
 
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := awt_headless
+LOCAL_LDFLAGS += -Wl,-z,max-page-size=16384
 include $(BUILD_SHARED_LIBRARY)
 
 
@@ -93,6 +95,7 @@ LOCAL_MODULE := awt_xawt
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)
 LOCAL_SHARED_LIBRARIES := awt_headless
 LOCAL_SRC_FILES := xawt_fake.c
+LOCAL_LDFLAGS += -Wl,-z,max-page-size=16384
 include $(BUILD_SHARED_LIBRARY)
 
 

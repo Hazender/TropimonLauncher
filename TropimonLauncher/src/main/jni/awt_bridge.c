@@ -117,7 +117,7 @@ JNIEXPORT jintArray JNICALL Java_com_hazender_tropimonlauncher_bridge_ZLBridge_r
     androidRgbArray = (*env)->NewIntArray(env, arrayLength);
     (*env)->SetIntArrayRegion(env, androidRgbArray, 0, arrayLength, rgbArray);
 
-    (*runtimeJNIEnvPtr_GRAPHICS)->ReleaseIntArrayElements(runtimeJNIEnvPtr_GRAPHICS, jreRgbArray, rgbArray, NULL);
+    (*runtimeJNIEnvPtr_GRAPHICS)->ReleaseIntArrayElements(runtimeJNIEnvPtr_GRAPHICS, jreRgbArray, rgbArray, JNI_ABORT);
     // (*env)->DeleteLocalRef(env, androidRgbArray);
     // free(rgbArray);
     

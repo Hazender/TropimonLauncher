@@ -58,13 +58,6 @@
     <string name="launcher_version_debug_warning">Você está usando uma versão de teste do %s! Esta versão pode ser instável e destina-se principalmente a testes de recursos e acesso antecipado. Não é recomendada para uso prolongado. Se encontrar algum problema durante os testes, por favor, reporte no GitHub e nós iremos corrigir o mais rápido possível.</string>
     <string name="launcher_version_debug_warning_cant_close">Este aviso não pode ser fechado</string>
     <string name="theme_color_dynamic">Dinâmico (Android 12+)</string>
-    <string name="theme_color_embermire">Embermire</string>
-    <string name="theme_color_velvet_rose">Rosa Veludo</string>
-    <string name="theme_color_mistwave">Mistwave</string>
-    <string name="theme_color_glacier">Geleira</string>
-    <string name="theme_color_verdant_field">Crepúsculo Verdejante</string>
-    <string name="theme_color_urban_ash">Cinza Urbano</string>
-    <string name="theme_color_verdant_dawn">Aurora da Floresta Silenciosa</string>
     <string name="theme_color_picker_title">Selecionar Cor</string>
     <string name="theme_color_picker_edit_hex">Editar Hex</string>
     <string name="theme_color_picker_edit_hex_invalid">Hex Inválido</string>

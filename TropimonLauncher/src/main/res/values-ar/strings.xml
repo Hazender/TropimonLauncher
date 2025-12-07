@@ -56,13 +56,6 @@
     <string name="launcher_version_debug_warning">أنت تستخدم إصدارًا تجريبيًا من %s! قد يكون هذا الإصدار غير مستقر، وهو مخصص في المقام الأول لاختبار الميزات والوصول المبكر. لا يُنصح باستخدامه على المدى الطويل! إذا واجهت أي مشاكل أثناء الاختبار، يُرجى إبلاغنا بها عبر GitHub وسنقوم بمعالجتها في أقرب وقت ممكن.</string>
     <string name="launcher_version_debug_warning_cant_close">لا يمكن تجاهل هذا التحذير</string>
     <string name="theme_color_dynamic">ديناميكي (Android 12+)</string>
-    <string name="theme_color_embermire">إمبرمير</string>
-    <string name="theme_color_velvet_rose">الورد المخملي</string>
-    <string name="theme_color_mistwave">موجة الضباب</string>
-    <string name="theme_color_glacier">نهر جليدي</string>
-    <string name="theme_color_verdant_field">الشفق الأخضر</string>
-    <string name="theme_color_urban_ash">الرماد الحضري</string>
-    <string name="theme_color_verdant_dawn">فجر الغابة الصامتة</string>
     <string name="theme_color_picker_title">أداة اختيار الألوان</string>
     <string name="theme_color_picker_edit_hex">تحرير الـ Hex</string>
     <string name="theme_color_picker_edit_hex_invalid">Hex غير صالح</string>

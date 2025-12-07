@@ -28,9 +28,6 @@
     <string name="generic_search">Pesquisar</string>
     <string name="generic_loading">Carregando</string>
     <string name="unit_day">dia</string>
-    <string name="theme_color_embermire">Pântano de brasas</string>
-    <string name="theme_color_mistwave">Onda nebular</string>
-    <string name="theme_color_glacier">Geleira</string>
     <string name="animate_type_bounce">Quicar</string>
     <string name="crash_restart">Reiniciar</string>
     <string name="crash_exit">Sair</string>
@@ -146,10 +143,6 @@
     <string name="launcher_version_debug_warning">Você está usando uma versão de teste do %s! Esta versão pode ser instável e destina-se principalmente a testes de recursos e acesso antecipado. Não é recomendada para o uso a longo prazo! Se encontrar algum problema durante os testes, informe-nos via GitHub e resolveremos o problema o mais breve possível.</string>
     <string name="launcher_version_debug_warning_cant_close">Este aviso não pode ser ignorado</string>
     <string name="theme_color_dynamic">Dinâmico (Android 12+)</string>
-    <string name="theme_color_velvet_rose">Rosa de veludo</string>
-    <string name="theme_color_verdant_field">Crepúsculo verdejante</string>
-    <string name="theme_color_urban_ash">Cinzas urbanas</string>
-    <string name="theme_color_verdant_dawn">Amanhecer verdejante</string>
     <string name="theme_color_picker_title">Seletor de cores</string>
     <string name="animate_type_jelly_bounce">Salto gelatinoso</string>
     <string name="animate_type_slice_in">Deslizar</string>

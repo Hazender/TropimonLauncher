@@ -309,13 +309,6 @@
     <string name="unit_day">日</string>
     <string name="date_format">yyyy 年 MM 月 dd 日 HH:mm:ss</string>
     <string name="theme_color_dynamic">ダイナミック (Android 12+)</string>
-    <string name="theme_color_embermire">エンバーマイア</string>
-    <string name="theme_color_velvet_rose">ベルベットローズ</string>
-    <string name="theme_color_mistwave">ミストウェーブ</string>
-    <string name="theme_color_glacier">グレイシア</string>
-    <string name="theme_color_verdant_field">ヴァーダントトワイライト</string>
-    <string name="theme_color_urban_ash">アーバンアッシュ</string>
-    <string name="theme_color_verdant_dawn">サイレントフォレストダウン</string>
     <string name="crash_launch_crash_title">アプリケーションの起動に失敗</string>
     <string name="crash_launch_crash_message">ランチャーに深刻な問題が発生しクラッシュしました</string>
     <string name="game_menu_option_switch_log">ログを出力</string>

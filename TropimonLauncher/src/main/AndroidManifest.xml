@@ -2,18 +2,28 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Permissions de base - Celles-ci sont considérées comme normales et ne posent pas de problème. -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
-        tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.VIBRATE"/>
+
+    <!-- Permissions pour les services de premier plan et les notifications (obligatoire depuis Android 13) -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!--
+    Permissions pour le chat vocal (optionnel).
+    -->
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+    <uses-feature android:name="android.hardware.microphone" android:required="false" />
+
+    <!--
+    NOTE IMPORTANTE : Toutes les permissions de stockage dangereuses ont été supprimées.
+    L'application utilisera son stockage interne spécifique, qui ne nécessite aucune permission.
+    -->
 
     <application
         android:name="TLApplication"
@@ -31,10 +41,11 @@
         android:allowBackup="true"
         android:hasFragileUserData="true"
         android:resizeableActivity="true"
-        android:requestLegacyExternalStorage="true"
         android:allowNativeHeapPointerTagging="false"
         tools:targetApi="31"
         tools:ignore="DiscouragedApi">
+        <!-- L'attribut 'requestLegacyExternalStorage' a été supprimé car il est obsolète et contradictoire. -->
+
         <activity
             android:name=".ui.activities.SplashActivity"
             android:theme="@style/AppTheme.SplashScreen"
@@ -44,10 +55,11 @@
             android:screenOrientation="sensorLandscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- ... autres activités ... -->
         <activity
             android:name=".ui.activities.MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|keyboard|navigation"
@@ -73,9 +85,16 @@
         <service
             android:name=".game.download.jvm_server.JvmService"
             android:enabled="true"
-            android:foregroundServiceType="dataSync"
+            android:foregroundServiceType="dataSync|microphone"
             android:process=":jvm" />
 
+        <!--
+        CORRECTION : Ce 'Provider' est ESSENTIEL pour l'import/export.
+        Il permet à d'autres applications (comme les explorateurs de fichiers)
+        d'interagir avec le dossier de jeu de votre application de manière sécurisée,
+        via le Storage Access Framework, sans nécessiter de permission de stockage.
+        L'attribut 'exported' doit être 'true' pour que cela fonctionne.
+        -->
         <provider
             android:name=".provider.FolderProvider"
             android:authorities="${packageName}.document.provider"
@@ -86,6 +105,12 @@
                 <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
             </intent-filter>
         </provider>
+
+        <!--
+        Ce 'FileProvider' est utilisé pour partager des fichiers spécifiques
+        de manière sécurisée (par exemple, un fichier de log pour un rapport de bug).
+        Il doit rester non exporté.
+        -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${packageName}.provider"
@@ -95,7 +120,9 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
+
     </application>
+
     <queries>
         <package android:name="net.kdt.pojavlaunch.ffmpeg"/>
         <intent>

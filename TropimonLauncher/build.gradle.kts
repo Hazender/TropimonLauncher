@@ -52,9 +52,9 @@ android {
 
     signingConfigs {
         create("releaseBuild") {
-            storeFile = file("zalith_launcher.jks")
+            storeFile = file("tropimon_launcher.jks")
             storePassword = getKeyFromLocal("STORE_PASSWORD", ".store_password.txt")
-            keyAlias = "movtery_zalith"
+            keyAlias = "hazender_tropimonlauncher"
             keyPassword = getKeyFromLocal("KEY_PASSWORD", ".key_password.txt")
         }
         create("debugBuild") {
@@ -137,7 +137,7 @@ android {
         }
     }
 
-    ndkVersion = "25.2.9519653"
+    ndkVersion = "26.1.10909125"
 
     externalNativeBuild {
         ndkBuild {

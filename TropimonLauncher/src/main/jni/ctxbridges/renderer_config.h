@@ -4,10 +4,6 @@
 //
 
 
-#define RENDERER_GL4ES 1
-#define RENDERER_VK_ZINK 2
-#define RENDERER_VIRGL 3
-#define RENDERER_VULKAN 4
 
 
 #ifndef POTATOBRIDGE_H
@@ -26,5 +22,3 @@ extern struct PotatoBridge potatoBridge;
 extern EGLConfig config;
 
 #endif // POTATOBRIDGE_H
-
-
