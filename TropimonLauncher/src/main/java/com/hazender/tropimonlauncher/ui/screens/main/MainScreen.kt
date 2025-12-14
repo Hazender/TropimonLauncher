@@ -24,42 +24,17 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardBackspace
 import androidx.compose.material.icons.automirrored.rounded.ArrowLeft
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Download
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Task
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -77,42 +52,25 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.hazender.tropimonlauncher.R
 import com.hazender.tropimonlauncher.coroutine.Task
+import com.hazender.tropimonlauncher.coroutine.TaskState
 import com.hazender.tropimonlauncher.coroutine.TaskSystem
+import com.hazender.tropimonlauncher.coroutine.TropiTaskSystem
+import com.hazender.tropimonlauncher.game.download.game.TropiInstallManager
 import com.hazender.tropimonlauncher.game.version.installed.Version
 import com.hazender.tropimonlauncher.setting.AllSettings
-import com.hazender.tropimonlauncher.ui.components.BackgroundCard
-import com.hazender.tropimonlauncher.ui.components.CardTitleLayout
-import com.hazender.tropimonlauncher.ui.components.TextRailItem
-import com.hazender.tropimonlauncher.ui.components.itemLayoutColor
-import com.hazender.tropimonlauncher.ui.components.itemLayoutShadowElevation
-import com.hazender.tropimonlauncher.ui.screens.NestedNavKey
-import com.hazender.tropimonlauncher.ui.screens.NormalNavKey
-import com.hazender.tropimonlauncher.ui.screens.content.AccountManageScreen
-import com.hazender.tropimonlauncher.ui.screens.content.DownloadScreen
-import com.hazender.tropimonlauncher.ui.screens.content.FileSelectorScreen
-import com.hazender.tropimonlauncher.ui.screens.content.LauncherScreen
-import com.hazender.tropimonlauncher.ui.screens.content.LicenseScreen
-import com.hazender.tropimonlauncher.ui.screens.content.SettingsScreen
-import com.hazender.tropimonlauncher.ui.screens.content.VersionSettingsScreen
-import com.hazender.tropimonlauncher.ui.screens.content.VersionsManageScreen
-import com.hazender.tropimonlauncher.ui.screens.content.WebViewScreen
-import com.hazender.tropimonlauncher.ui.screens.content.navigateToDownload
-import com.hazender.tropimonlauncher.ui.screens.navigateTo
-import com.hazender.tropimonlauncher.ui.screens.onBack
-import com.hazender.tropimonlauncher.ui.screens.rememberTransitionSpec
+import com.hazender.tropimonlauncher.ui.components.*
+import com.hazender.tropimonlauncher.ui.screens.*
+import com.hazender.tropimonlauncher.ui.screens.content.*
 import com.hazender.tropimonlauncher.utils.animation.getAnimateTween
-import com.hazender.tropimonlauncher.viewmodel.ErrorViewModel
-import com.hazender.tropimonlauncher.viewmodel.EventViewModel
-import com.hazender.tropimonlauncher.viewmodel.LaunchGameViewModel
-import com.hazender.tropimonlauncher.viewmodel.LocalBackgroundViewModel
-import com.hazender.tropimonlauncher.viewmodel.ScreenBackStackViewModel
+import com.hazender.tropimonlauncher.viewmodel.*
+import kotlinx.coroutines.flow.combine
 
 @Composable
 fun MainScreen(
@@ -121,7 +79,18 @@ fun MainScreen(
     eventViewModel: EventViewModel,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
-    val tasks by TaskSystem.tasksFlow.collectAsState()
+    val tasks by combine(
+        TaskSystem.tasksFlow,
+        TropiTaskSystem.tasksFlow
+    ) { normalTasks, tropiTasks ->
+        when {
+            tropiTasks.any { it.taskState == TaskState.PREPARING || it.taskState == TaskState.RUNNING } ->
+                tropiTasks
+            normalTasks.any { it.taskState == TaskState.PREPARING || it.taskState == TaskState.RUNNING } ->
+                normalTasks
+            else -> emptyList()
+        }
+    }.collectAsState(initial = emptyList())
     val isTaskMenuExpanded = AllSettings.launcherTaskMenuExpanded.state
 
     fun changeTasksExpandedState() {
@@ -140,9 +109,6 @@ fun MainScreen(
     val inLauncherScreen = currentKey == null || currentKey is NormalNavKey.LauncherMain
     val surfaceAlpha = if (inLauncherScreen) 0f else 0.5f
 
-    // --- MODIFICATION END ---
-
-
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = backgroundColor.copy(alpha = surfaceAlpha),
@@ -154,7 +120,7 @@ fun MainScreen(
                     .fillMaxWidth()
                     .height(42.dp),
                 color = if (isBackgroundValid) topBarColor.copy(alpha = launcherBackgroundOpacity) else topBarColor,
-                tonalElevation = 3.dp
+                tonalElevation = 0.dp
             ) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -348,7 +314,7 @@ private fun TopBar(
                             .clip(shape = MaterialTheme.shapes.large)
                             .clickable { changeExpandedState() }
                             .padding(all = 8.dp)
-                            .width(120.dp),
+                            .width(100.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -507,6 +473,7 @@ private fun NavigationUI(
                         backStack.removeLastOrNull()
                     }
                 }
+                // ✅ CELLE-CI MANQUAIT !
                 entry<NestedNavKey.VersionSettings> { key ->
                     VersionSettingsScreen(
                         key = key,
@@ -538,7 +505,10 @@ private fun TaskMenu(
     modifier: Modifier = Modifier,
     changeExpandedState: () -> Unit = {}
 ) {
-    val show = isExpanded && tasks.isNotEmpty()
+    val activeTasks = tasks.filter {
+        it.taskState == TaskState.PREPARING || it.taskState == TaskState.RUNNING
+    }
+    val show = isExpanded && activeTasks.isNotEmpty()
 
     AnimatedVisibility(
         modifier = modifier,
@@ -593,25 +563,28 @@ private fun TaskMenu(
                         .weight(1f),
                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
                 ) {
-                    items(tasks) { task ->
+                    items(
+                        items = activeTasks,
+                        key = { it.id }
+                    ) { task ->
                         TaskItem(
                             taskProgress = task.currentProgress,
                             taskMessageRes = task.currentMessageRes,
                             taskMessageArgs = task.currentMessageArgs,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 6.dp)
-                        ) {
-                            //取消任务
-                            TaskSystem.cancelTask(task.id)
-                        }
+                                .padding(vertical = 6.dp),
+                            onCancelClick = {
+                                TaskSystem.cancelTask(task.id)
+                                TropiInstallManager.cancelInstallation()
+                            }
+                        )
                     }
                 }
             }
         }
     }
 }
-
 @Composable
 fun TaskItem(
     taskProgress: Float,

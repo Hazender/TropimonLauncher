@@ -60,7 +60,7 @@ fun SplashScreen(
                 .fillMaxWidth()
                 .height(40.dp)
                 .zIndex(10f),
-            color = MaterialTheme.colorScheme.surfaceContainer
+            color = MaterialTheme.colorScheme.surfaceBright
         )
 
         Surface(modifier = Modifier.fillMaxSize().weight(1f)) {
@@ -84,7 +84,7 @@ private fun TopBar(
     Surface(
         modifier = modifier,
         color = color,
-        tonalElevation = 3.dp
+        tonalElevation = 0.dp
     ) {
         Row(
             horizontalArrangement = Arrangement.Center

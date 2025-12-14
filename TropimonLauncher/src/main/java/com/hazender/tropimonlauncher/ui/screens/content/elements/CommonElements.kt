@@ -44,6 +44,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Schedule
@@ -313,6 +314,7 @@ private fun InstallingTaskItem(
             TaskState.PREPARING -> Icons.Outlined.Schedule
             TaskState.RUNNING -> runningIcon ?: Icons.Outlined.Download
             TaskState.COMPLETED -> Icons.Outlined.Check
+            TaskState.CANCELLED -> Icons.Outlined.Cancel
         }
         Icon(
             modifier = Modifier.size(24.dp),

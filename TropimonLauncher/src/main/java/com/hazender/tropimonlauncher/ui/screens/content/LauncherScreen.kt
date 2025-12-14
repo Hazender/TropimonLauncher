@@ -18,38 +18,24 @@
 
 package com.hazender.tropimonlauncher.ui.screens.content
 
+import android.content.Context
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -57,6 +43,10 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import com.hazender.tropimonlauncher.BuildConfig
 import com.hazender.tropimonlauncher.R
 import com.hazender.tropimonlauncher.game.account.AccountsManager
+import com.hazender.tropimonlauncher.game.addons.modloader.fabriclike.fabric.FabricVersion
+import com.hazender.tropimonlauncher.game.download.game.GameDownloadInfo
+import com.hazender.tropimonlauncher.game.download.game.TropimonInstaller
+import com.hazender.tropimonlauncher.game.download.game.TropiInstallManager
 import com.hazender.tropimonlauncher.game.version.installed.Version
 import com.hazender.tropimonlauncher.game.version.installed.VersionsManager
 import com.hazender.tropimonlauncher.info.InfoDistributor
@@ -78,6 +68,8 @@ fun LauncherScreen(
     navigateToVersions: (Version) -> Unit,
     launchGameViewModel: LaunchGameViewModel
 ) {
+    val context = LocalContext.current
+
     BaseScreen(
         screenKey = NormalNavKey.LauncherMain,
         currentKey = backStackViewModel.mainScreen.currentKey
@@ -97,6 +89,7 @@ fun LauncherScreen(
                     .fillMaxHeight()
                     .padding(top = 12.dp, end = 12.dp, bottom = 12.dp),
                 launchGameViewModel = launchGameViewModel,
+                context = context,
                 toAccountManageScreen = {
                     backStackViewModel.mainScreen.navigateTo(NormalNavKey.AccountManager)
                 },
@@ -133,7 +126,6 @@ private fun ContentMenu(
             .offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
     ) {
         if (BuildConfig.DEBUG) {
-            //debug版本关不掉的警告，防止有人把测试版当正式版用 XD
             BackgroundCard(
                 modifier = Modifier.padding(all = 12.dp),
                 shape = MaterialTheme.shapes.extraLarge
@@ -168,6 +160,7 @@ private fun RightMenu(
     isVisible: Boolean,
     modifier: Modifier = Modifier,
     launchGameViewModel: LaunchGameViewModel,
+    context: Context,
     toAccountManageScreen: () -> Unit = {},
     toVersionManageScreen: () -> Unit = {},
     toVersionSettingsScreen: () -> Unit = {}
@@ -177,6 +170,7 @@ private fun RightMenu(
         swapIn = isVisible,
         isHorizontal = true
     )
+    val isInstalling by TropiInstallManager.isInstalling.collectAsState()
 
     BackgroundCard(
         modifier = modifier.offset { IntOffset(x = xOffset.roundToPx(), y = 0) },
@@ -185,71 +179,118 @@ private fun RightMenu(
         val account by AccountsManager.currentAccountFlow.collectAsState()
         val version = VersionsManager.currentVersion
 
-        ConstraintLayout(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            val (accountAvatar, versionManagerLayout, launchButton) = createRefs()
+        key(version) {
+            ConstraintLayout(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                val (accountAvatar, versionManagerLayout, launchButton) = createRefs()
 
-            AccountAvatar(
-                modifier = Modifier
-                    .constrainAs(accountAvatar) {
-                        top.linkTo(parent.top)
-                        bottom.linkTo(launchButton.top, margin = 32.dp)
+                AccountAvatar(
+                    modifier = Modifier
+                        .constrainAs(accountAvatar) {
+                            top.linkTo(parent.top)
+                            bottom.linkTo(launchButton.top, margin = 32.dp)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                        },
+                    account = account,
+                    onClick = toAccountManageScreen
+                )
+
+                Row(
+                    modifier = Modifier.constrainAs(versionManagerLayout) {
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
+                        bottom.linkTo(launchButton.top)
                     },
-                account = account,
-                onClick = toAccountManageScreen
-            )
-
-            Row(
-                modifier = Modifier.constrainAs(versionManagerLayout) {
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                    bottom.linkTo(launchButton.top)
-                },
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                VersionManagerLayout(
-                    version = version,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    VersionManagerLayout(
+                        version = version,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(8.dp),
+                        swapToVersionManage = toVersionManageScreen
+                    )
+                    version?.takeIf { it.isValid() }?.let {
+                        IconButton(
+                            modifier = Modifier.padding(end = 8.dp),
+                            onClick = toVersionSettingsScreen
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Settings,
+                                contentDescription = stringResource(R.string.versions_manage_settings)
+                            )
+                        }
+                    }
+                }
+                ScalingActionButton(
                     modifier = Modifier
-                        .weight(1f)
-                        .padding(8.dp),
-                    swapToVersionManage = toVersionManageScreen
-                )
-                version?.takeIf { it.isValid() }?.let {
-                    IconButton(
-                        modifier = Modifier.padding(end = 8.dp),
-                        onClick = toVersionSettingsScreen
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Settings,
-                            contentDescription = stringResource(R.string.versions_manage_settings)
+                        .fillMaxWidth()
+                        .constrainAs(launchButton) {
+                            bottom.linkTo(parent.bottom, margin = 8.dp)
+                        }
+                        .padding(PaddingValues(horizontal = 12.dp)),
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 1.dp),
+                    enabled = !isInstalling,
+                    onClick = {
+                        if (version == null) {
+                            val tropimonInstallInfo = GameDownloadInfo(
+                                customVersionName = "Tropimon-1.21.1",
+                                gameVersion = "1.21.1",
+                                fabric = FabricVersion(
+                                    inherit = "1.21.1",
+                                    version = "0.18.1",
+                                    stable = true
+                                )
+                            )
+
+                            val installer = TropimonInstaller(
+                                context,
+                                tropimonInstallInfo
+                            )
+
+                            TropiInstallManager.startInstallation(
+                                installer = installer,
+                                onInstalled = {
+                                    VersionsManager.refresh()
+                                },
+                                onError = { error ->
+                                    error.printStackTrace()
+                                },
+                                onGameAlreadyInstalled = {
+                                    VersionsManager.refresh()
+                                },
+                                onCancelled = {
+                                }
+                            )
+                        } else {
+                            launchGameViewModel.tryLaunch(VersionsManager.currentVersion)
+                        }
+                    },
+                ) {
+                    if (isInstalling) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp),
+                                strokeWidth = 2.dp
+                            )
+                            MarqueeText(text = "Installation en cours...")
+                        }
+                    } else {
+                        MarqueeText(
+                            text = if (version == null) "Installer Tropimon"
+                            else stringResource(R.string.main_launch_game)
                         )
                     }
                 }
             }
-
-            ScalingActionButton(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .constrainAs(launchButton) {
-                        bottom.linkTo(parent.bottom, margin = 8.dp)
-                    }
-                    .padding(PaddingValues(horizontal = 12.dp)),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 1.dp),
-                onClick = {
-                    launchGameViewModel.tryLaunch(
-                        VersionsManager.currentVersion
-                    )
-                },
-            ) {
-                MarqueeText(text = stringResource(R.string.main_launch_game))
-            }
         }
     }
 }
-
 @Composable
 private fun VersionManagerLayout(
     version: Version?,
@@ -267,9 +308,11 @@ private fun VersionManagerLayout(
         ) {
             if (VersionsManager.isRefreshing) {
                 Box(modifier = Modifier.fillMaxSize()) {
-                    CircularProgressIndicator(modifier = Modifier
-                        .size(24.dp)
-                        .align(Alignment.Center))
+                    CircularProgressIndicator(
+                        modifier = Modifier
+                            .size(24.dp)
+                            .align(Alignment.Center)
+                    )
                 }
             } else {
                 VersionIconImage(

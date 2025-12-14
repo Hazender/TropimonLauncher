@@ -25,7 +25,9 @@ import androidx.compose.runtime.setValue
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import java.util.UUID
+import kotlin.coroutines.cancellation.CancellationException
 
 class Task private constructor(
     val id: String,
@@ -35,9 +37,6 @@ class Task private constructor(
     val onFinally: () -> Unit = {},
     val onCancel: () -> Unit = {}
 ) {
-    /**
-     * 任务阶段（TaskSystem可能用不到，主要服务于GameInstaller）
-     */
     var taskState by mutableStateOf(TaskState.PREPARING)
 
     var currentProgress by mutableFloatStateOf(-1f)
@@ -47,49 +46,34 @@ class Task private constructor(
     var currentMessageArgs by mutableStateOf<Array<out Any>?>(null)
         private set
 
-    /**
-     * 更新进度，自动处理 NaN、isInfinite 的这种错误情况
-     * @param percentage 进度百分比，-1f代表进度不确定
-     */
+    suspend fun await() {
+        while (taskState != TaskState.COMPLETED && taskState != TaskState.CANCELLED) {
+            delay(50)
+        }
+        if (taskState == TaskState.CANCELLED) {
+            throw CancellationException("Task was cancelled")
+        }
+    }
+
     fun updateProgress(percentage: Float) {
         this.currentProgress = (percentage.takeIf { it.isFinite() } ?: 0f).coerceIn(-1f, 1f)
     }
 
-    /**
-     * 更新进度、任务描述消息
-     * @param percentage 进度百分比，-1f代表进度不确定，自动处理 NaN、isInfinite 的这种错误情况
-     * @param message 任务描述消息
-     */
     fun updateProgress(percentage: Float, message: Int?) {
         this.updateProgress(percentage = percentage)
         this.updateMessage(message = message)
     }
 
-    /**
-     * 更新进度、任务描述消息
-     * @param percentage 进度百分比，-1f代表进度不确定，自动处理 NaN、isInfinite 的这种错误情况
-     * @param message 任务描述消息
-     * @param args 任务描述信息格式化内容
-     */
     fun updateProgress(percentage: Float, message: Int?, vararg args: Any) {
         this.updateProgress(percentage = percentage)
         this.updateMessage(message = message, args = args)
     }
 
-    /**
-     * 更新任务描述消息
-     * @param message 任务描述消息
-     */
     fun updateMessage(message: Int?) {
         this.currentMessageRes = message
         this.currentMessageArgs = null
     }
 
-    /**
-     * 更新任务描述消息
-     * @param message 任务描述消息
-     * @param args 任务描述信息格式化内容
-     */
     fun updateMessage(message: Int?, vararg args: Any) {
         this.currentMessageRes = message
         this.currentMessageArgs = args

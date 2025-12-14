@@ -24,5 +24,6 @@ enum class TaskState {
     /** 运行中 */
     RUNNING,
     /** 已完成 */
-    COMPLETED
+    COMPLETED,
+    CANCELLED
 }
