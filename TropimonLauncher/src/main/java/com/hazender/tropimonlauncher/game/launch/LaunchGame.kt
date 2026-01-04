@@ -41,6 +41,10 @@ import java.net.UnknownHostException
 import java.nio.channels.UnresolvedAddressException
 
 object LaunchGame {
+    private const val LAUNCH_LOGIN_TASK_ID = "launch_game_login"
+    private const val LAUNCH_DOWNLOAD_TASK_ID = "MinecraftDownloader"
+
+    // Flag pour empêcher les lancements multiples
     private var isLaunching: Boolean = false
 
     fun launchGame(
@@ -49,7 +53,10 @@ object LaunchGame {
         exitActivity: () -> Unit,
         submitError: (ErrorViewModel.ThrowableMessage) -> Unit
     ) {
-        if (isLaunching) return
+        // Protection contre les doubles lancements
+        if (isLaunching || isLaunchInProgress()) {
+            return
+        }
 
         val account = AccountsManager.getCurrentAccount() ?: return
 
@@ -75,8 +82,15 @@ object LaunchGame {
             }
         ).getDownloadTask()
 
+        // Fonction pour remettre le flag à false à la fin
+        fun resetLaunchingState() {
+            isLaunching = false
+        }
+
         fun runDownloadTask() {
-            TaskSystem.submitTask(downloadTask) { isLaunching = false }
+            TaskSystem.submitTask(downloadTask) {
+                resetLaunchingState()
+            }
         }
 
         val loginTask = if (isNetworkAvailable(context)) {
@@ -119,16 +133,30 @@ object LaunchGame {
                     )
                 },
                 onFinally = { runDownloadTask() }
-            )
+            )?.apply {
+                id = LAUNCH_LOGIN_TASK_ID
+            }
         } else {
             null
         }
 
-        loginTask?.let { task ->
-            TaskSystem.submitTask(task)
-        } ?: run {
+        if (loginTask != null) {
+            TaskSystem.submitTask(loginTask) {
+                // Si le login se termine sans lancer le download (ex: annulé), on reset
+                resetLaunchingState()
+            }
+        } else {
             version.offlineAccountLogin = true
             runDownloadTask()
         }
+    }
+
+    /**
+     * Retourne true si une tâche de lancement (login ou download/vérification) est en cours.
+     * Utilisé par l'UI pour désactiver le bouton de lancement.
+     */
+    fun isLaunchInProgress(): Boolean {
+        return TaskSystem.containsTask(LAUNCH_LOGIN_TASK_ID) ||
+                TaskSystem.containsTask(LAUNCH_DOWNLOAD_TASK_ID)
     }
 }

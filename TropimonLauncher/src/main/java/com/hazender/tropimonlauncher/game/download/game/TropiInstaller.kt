@@ -46,14 +46,12 @@ import com.hazender.tropimonlauncher.utils.network.downloadFileSuspend
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
 import java.io.File
-import kotlin.coroutines.cancellation.CancellationException
 
 
 class TropimonAlreadyInstalledException : RuntimeException()
@@ -69,48 +67,24 @@ class TropimonInstaller(
     private val downloader = BaseMinecraftDownloader(verifyIntegrity = true)
     private var targetClientDir: File? = null
     private val targetGameFolder: File = File(getGameHome())
-    fun installGame(
-        isRunning: () -> Unit = {},
-        onInstalled: () -> Unit,
-        onError: (th: Throwable) -> Unit,
-        onGameAlreadyInstalled: () -> Unit,
-        onCancelled: () -> Unit = {} // ✅ NOUVEAU callback
-    ) {
-        if (taskExecutor.isRunning()) {
-            isRunning()
-            return
-        }
 
-        scope.launch {
-            try {
-                val phases = getTaskPhase()
-                val allTitledTasks = phases.flatMap { it.tasks }
+    suspend fun installGameSuspend() = withContext(Dispatchers.IO) {
+        val phases = getTaskPhase()
 
-                allTitledTasks.forEach { titledTask ->
-                    TropiTaskSystem.submitTask(titledTask.task)
-                }
+        // Exécuter chaque phase séquentiellement
+        for (phase in phases) {
+            for (titledTask in phase.tasks) {
+                // Soumettre la tâche
+                TropiTaskSystem.submitTask(titledTask.task)
 
-                allTitledTasks.forEach { titledTask ->
-                    titledTask.task.await()
-                }
-                onInstalled()
+                // Attendre qu'elle se termine avant de passer à la suivante
+                titledTask.task.await()
 
-            } catch (e: CancellationException) {
-                cancelInstall()
-                onCancelled()
-            } catch (th: Throwable) {
-                if (th is TropimonAlreadyInstalledException) {
-                    onGameAlreadyInstalled()
-                } else {
-                    onError(th)
-                }
+                // Petit délai pour laisser l'UI se mettre à jour
+                delay(50)
             }
         }
     }
-    /**
-     * 获取安装 Minecraft 游戏的任务流阶段
-     * @param onInstalled 游戏已完成安装
-     */
     suspend fun getTaskPhase(
         createIsolation: Boolean = true,
         onInstalled: suspend (targetClientDir: File) -> Unit = {},
@@ -119,7 +93,6 @@ class TropimonInstaller(
         val targetClientDir1 = VersionsManager.getVersionPath(info.customVersionName)
         targetClientDir = targetClientDir1
         val targetVersionJson = File(targetClientDir1, "${info.customVersionName}.json")
-//        val targetVersionJar = File(targetClientDir1, "${info.customVersionName}.jar")
 
         //目标版本已经安装的情况
         if (targetVersionJson.exists()) {
@@ -139,8 +112,10 @@ class TropimonInstaller(
         val fabricDir = info.fabric?.let { File(tempGameVersionsDir, "fabric-loader-${it.version}-${info.gameVersion}") }
         val quiltDir = info.quilt?.let { File(tempGameVersionsDir, "quilt-loader-${it.version}-${info.gameVersion}") }
 
-        //Mods临时目录
+        // Dossiers temporaires Tropimon
         val tempModsDir = File(tempGameDir, ".temp_mods")
+        val tempConfigDir = File(tempGameDir, ".temp_config")
+        val tempResourcepacksDir = File(tempGameDir, ".temp_resourcepacks")
 
         listOf(
             buildPhase {
@@ -159,6 +134,8 @@ class TropimonInstaller(
                     fabricDir?.createDirAndLog()
                     quiltDir?.createDirAndLog()
                     tempModsDir.createDirAndLog()
+                    tempConfigDir.createDirAndLog()
+                    tempResourcepacksDir.createDirAndLog()
                 }
 
                 //下载安装原版
@@ -292,7 +269,6 @@ class TropimonInstaller(
                         )
                     )
                 }
-
                 //最终游戏安装任务
                 addTask(
                     title = context.getString(R.string.download_game_install_game_files_progress),
@@ -615,17 +591,5 @@ class TropimonInstaller(
         this.mkdirs()
         lDebug("Created directory: $this")
         return this
-    }
-
-    suspend fun installGameSuspend() = withContext(Dispatchers.IO) {
-        val phases = getTaskPhase()
-        val allTitledTasks = phases.flatMap { it.tasks }
-
-        allTitledTasks.forEach { titledTask ->
-            TropiTaskSystem.submitTask(titledTask.task)
-        }
-        allTitledTasks.forEach { titledTask ->
-            titledTask.task.await()
-        }
     }
 }

@@ -18,50 +18,56 @@
 
 package com.hazender.tropimonlauncher.ui.screens.splash
 
-import androidx.compose.animation.animateContentSize
+import android.Manifest
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.hazender.tropimonlauncher.R
 import com.hazender.tropimonlauncher.components.InstallableItem
 import com.hazender.tropimonlauncher.ui.base.BaseScreen
-import com.hazender.tropimonlauncher.ui.components.BackgroundCard
-import com.hazender.tropimonlauncher.ui.components.MarqueeText
-import com.hazender.tropimonlauncher.ui.components.ScalingActionButton
 import com.hazender.tropimonlauncher.ui.components.itemLayoutColor
 import com.hazender.tropimonlauncher.ui.components.itemLayoutShadowElevation
 import com.hazender.tropimonlauncher.ui.screens.NormalNavKey
-import com.hazender.tropimonlauncher.utils.animation.getAnimateTween
-import com.hazender.tropimonlauncher.utils.animation.swapAnimateDpAsState
 import com.hazender.tropimonlauncher.viewmodel.SplashBackStackViewModel
 
 @Composable
@@ -70,172 +76,179 @@ fun UnpackScreen(
     screenViewModel: SplashBackStackViewModel,
     onAgreeClick: () -> Unit = {}
 ) {
+    var hasRequestedPermission by remember { mutableStateOf(false) }
+
+    // Demande de permission de notifications
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        // Peu importe si la permission est accordée ou non, on démarre l'installation
+        hasRequestedPermission = true
+        onAgreeClick()
+    }
+
+    // Demande de permission au démarrage (uniquement pour Android 13+)
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // Demander la permission pour les notifications
+            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+            // Pour les versions < Android 13, pas besoin de permission
+            hasRequestedPermission = true
+            onAgreeClick()
+        }
+    }
+
     BaseScreen(
         screenKey = NormalNavKey.UnpackDeps,
         currentKey = screenViewModel.splashScreen.currentKey
     ) { isVisible ->
-        Row(modifier = Modifier.fillMaxSize()) {
-            UnpackTaskList(
-                isVisible = isVisible,
-                items = items,
-                modifier = Modifier
-                    .weight(7f)
-                    .fillMaxHeight()
-                    .padding(start = 12.dp, top = 12.dp, bottom = 12.dp)
-            )
-
-            ActionMenu(
-                isVisible = isVisible,
-                modifier = Modifier
-                    .weight(3f)
-                    .fillMaxHeight()
-                    .padding(all = 12.dp),
-                onAgreeClick = onAgreeClick
-            )
-        }
-    }
-}
-
-@Composable
-private fun ActionMenu(
-    isVisible: Boolean,
-    modifier: Modifier = Modifier,
-    onAgreeClick: () -> Unit = {}
-) {
-    var installing by remember { mutableStateOf(false) }
-
-    val xOffset by swapAnimateDpAsState(
-        targetValue = 40.dp,
-        swapIn = isVisible,
-        isHorizontal = true
-    )
-
-    BackgroundCard(
-        modifier = modifier.offset { IntOffset(x = xOffset.roundToPx(), y = 0) },
-        influencedByBackground = false,
-        shape = MaterialTheme.shapes.extraLarge
-    ) {
-        Column {
-            Column(
-                modifier = Modifier
-                    .verticalScroll(state = rememberScrollState())
-                    .weight(1f)
-            ) {
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    text = if (installing) {
-                        stringResource(R.string.splash_screen_installing)
-                    } else {
-                        stringResource(R.string.splash_screen_unpack_desc)
-                    },
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-
-            ScalingActionButton(
-                enabled = !installing,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp)
-                    .padding(bottom = 8.dp),
-                onClick = {
-                    installing = true
-                    onAgreeClick()
-                }
-            ) {
-                MarqueeText(text = stringResource(R.string.splash_screen_agree))
-            }
-        }
-    }
-}
-
-@Composable
-private fun UnpackTaskList(
-    isVisible: Boolean,
-    items: List<InstallableItem>,
-    modifier: Modifier = Modifier,
-) {
-    val yOffset by swapAnimateDpAsState(
-        targetValue = (-40).dp,
-        swapIn = isVisible
-    )
-
-    BackgroundCard(
-        modifier = modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
-        influencedByBackground = false,
-        shape = MaterialTheme.shapes.extraLarge
-    ) {
-        LazyColumn(
+        Box(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+            contentAlignment = Alignment.Center
         ) {
-            items(items) { item ->
-                TaskItem(
-                    item = item,
-                    modifier = Modifier.padding(vertical = 6.dp)
-                )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                // Icône qui tourne
+                RotatingAppIcon(modifier = Modifier.size(120.dp))
+
+                Spacer(modifier = Modifier.height(64.dp))
+
+                // Conteneur pour le texte : largeur max 80 % et padding
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth(0.8f)
+                        .padding(horizontal = 32.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = stringResource(R.string.splash_screen_unpack_desc),
+                        style = MaterialTheme.typography.titleMedium,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-private fun TaskItem(
+private fun RotatingAppIcon(
+    modifier: Modifier = Modifier
+) {
+    val infiniteTransition = rememberInfiniteTransition(label = "rotation")
+    val rotation by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(4000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "rotation"
+    )
+
+    Icon(
+        painter = painterResource(R.drawable.sealcircle),
+        contentDescription = null,
+        modifier = modifier.rotate(rotation),
+        tint = Color.Unspecified
+    )
+}
+
+@Composable
+private fun TaskProgressList(
+    items: List<InstallableItem>,
+    modifier: Modifier = Modifier
+) {
+    LazyColumn(
+        modifier = modifier,
+        contentPadding = PaddingValues(vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(items) { item ->
+            TaskProgressItem(item = item)
+        }
+    }
+}
+
+@Composable
+private fun TaskProgressItem(
     item: InstallableItem,
     modifier: Modifier = Modifier
 ) {
     Surface(
         modifier = modifier,
-        shape = MaterialTheme.shapes.large,
+        shape = MaterialTheme.shapes.medium,
         color = itemLayoutColor(),
         contentColor = MaterialTheme.colorScheme.onSurface,
         shadowElevation = itemLayoutShadowElevation()
     ) {
-        Row {
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(start = 12.dp, top = 8.dp, bottom = 8.dp)
-                    .animateContentSize(animationSpec = getAnimateTween())
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+        ) {
+            androidx.compose.foundation.layout.Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = item.name,
-                    style = MaterialTheme.typography.labelMedium
-                )
-                item.summary?.let {
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = it,
-                        style = MaterialTheme.typography.labelSmall
+                        text = item.name,
+                        style = MaterialTheme.typography.bodyMedium
                     )
-                }
-                if (item.isRunning) {
-                    item.task.taskMessage?.let { taskMessage ->
+
+                    item.summary?.let {
                         Text(
-                            text = taskMessage,
-                            style = MaterialTheme.typography.labelSmall,
-                            maxLines = 1
+                            text = it,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
+                    }
+                }
+
+                // Indicateur de statut
+                when {
+                    item.isFinished -> {
+                        Icon(
+                            imageVector = Icons.Default.Done,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    item.isRunning -> {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            strokeWidth = 2.dp
+                        )
+                    }
+                    else -> {
                     }
                 }
             }
 
-            val iconModifier = Modifier
-                .align(Alignment.CenterVertically)
-                .padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp))
-                .size(18.dp)
+            // Barre de progression si en cours
             if (item.isRunning) {
-                CircularProgressIndicator(
-                    modifier = iconModifier,
-                    strokeWidth = 2.dp
-                )
-            } else if (item.isFinished) {
-                Icon(
-                    modifier = iconModifier,
-                    imageVector = Icons.Default.Done,
-                    contentDescription = null
+                Spacer(modifier = Modifier.height(8.dp))
+
+                item.task.taskMessage?.let { message ->
+                    Text(
+                        text = message,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                }
+
+                LinearProgressIndicator(
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
         }

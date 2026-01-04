@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowLeft
 import androidx.compose.material.icons.automirrored.rounded.ArrowRight
@@ -47,6 +48,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.hazender.tropimonlauncher.utils.math.addBigDecimal
@@ -142,15 +144,17 @@ fun SimpleTextSlider(
                         )
                 ) {
                     Text(
-                        text = getTextString(value),
+                        text = getTextString(value) + (suffix ?: ""),
                         color = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.widthIn(min = 60.dp),
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontFeatureSettings = "tnum"
+                        )
                     )
-                    suffix?.let { text ->
-                        Text(text = text)
-                    }
                 }
                 if (fineTuningControl) {
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(0.dp))
                     IconButton(
                         enabled = enabled,
                         modifier = Modifier.size(26.dp),

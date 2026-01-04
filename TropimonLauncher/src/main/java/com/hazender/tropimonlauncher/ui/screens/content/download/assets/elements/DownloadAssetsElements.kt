@@ -41,7 +41,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Autorenew
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.rounded.ArrowDropDown
@@ -308,13 +307,6 @@ private fun AssetsVersionHeadLayout(
                     shape = MaterialTheme.shapes.small
                 )
             }
-        }
-        if (isAdapt) {
-            Icon(
-                modifier = Modifier.size(18.dp),
-                imageVector = Icons.Filled.Star,
-                contentDescription = null
-            )
         }
         if (!infoMap.versions.isEmpty()) {
             Row(

@@ -34,7 +34,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardBackspace
 import androidx.compose.material.icons.automirrored.rounded.ArrowLeft
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.Extension
 import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -64,6 +66,7 @@ import com.hazender.tropimonlauncher.coroutine.TaskSystem
 import com.hazender.tropimonlauncher.coroutine.TropiTaskSystem
 import com.hazender.tropimonlauncher.game.download.game.TropiInstallManager
 import com.hazender.tropimonlauncher.game.version.installed.Version
+import com.hazender.tropimonlauncher.game.version.installed.VersionsManager
 import com.hazender.tropimonlauncher.setting.AllSettings
 import com.hazender.tropimonlauncher.ui.components.*
 import com.hazender.tropimonlauncher.ui.screens.*
@@ -71,6 +74,8 @@ import com.hazender.tropimonlauncher.ui.screens.content.*
 import com.hazender.tropimonlauncher.utils.animation.getAnimateTween
 import com.hazender.tropimonlauncher.viewmodel.*
 import kotlinx.coroutines.flow.combine
+import androidx.core.net.toUri
+import com.hazender.tropimonlauncher.game.server.ServerConfigViewModel
 
 @Composable
 fun MainScreen(
@@ -79,6 +84,12 @@ fun MainScreen(
     eventViewModel: EventViewModel,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+
+    // ViewModel centralisé pour toute la config serveur
+    val serverConfigViewModel: ServerConfigViewModel = viewModel()
+    val serverConfig by serverConfigViewModel.config.collectAsState()
+
     val tasks by combine(
         TaskSystem.tasksFlow,
         TropiTaskSystem.tasksFlow
@@ -99,6 +110,15 @@ fun MainScreen(
 
     val toMainScreen: () -> Unit = {
         screenBackStackModel.mainScreen.clearWith(NormalNavKey.LauncherMain)
+    }
+
+    val toVersionSettings: () -> Unit = {
+        VersionsManager.currentVersion?.let { version ->
+            screenBackStackModel.mainScreen.navigateTo(
+                screenKey = NestedNavKey.VersionSettings(version),
+                useClassEquality = true
+            )
+        }
     }
 
     val isBackgroundValid = LocalBackgroundViewModel.current?.isValid == true
@@ -174,7 +194,39 @@ fun MainScreen(
                                 screenKey = screenBackStackModel.settingsScreen
                             )
                         },
-                        toDownloadScreen = { screenBackStackModel.navigateToDownload() }
+                        toVersionSettings = toVersionSettings,
+                        onDiscordClick = {
+                            val url = serverConfig?.links?.discord ?: "https://discord.gg/tropimon"
+                            try {
+                                val intent = android.content.Intent(
+                                    android.content.Intent.ACTION_VIEW,
+                                    url.toUri()
+                                ).apply {
+                                    addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                                }
+                                context.startActivity(intent)
+                            } catch (e: Exception) {
+                                eventViewModel.sendEvent(
+                                    EventViewModel.Event.OpenLink(url)
+                                )
+                            }
+                        },
+                        onShopClick = {
+                            val url = serverConfig?.links?.shop ?: "https://tropimon.fr/shop/categories/credits"
+                            try {
+                                val intent = android.content.Intent(
+                                    android.content.Intent.ACTION_VIEW,
+                                    url.toUri()
+                                ).apply {
+                                    addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                                }
+                                context.startActivity(intent)
+                            } catch (e: Exception) {
+                                eventViewModel.sendEvent(
+                                    EventViewModel.Event.OpenLink(url)
+                                )
+                            }
+                        }
                     ) {
                         changeTasksExpandedState()
                     }
@@ -222,11 +274,13 @@ private fun TopBar(
     onScreenBack: () -> Unit,
     toMainScreen: () -> Unit,
     toSettingsScreen: () -> Unit,
-    toDownloadScreen: () -> Unit,
+    toVersionSettings: () -> Unit,
+    onDiscordClick: () -> Unit = {},
+    onShopClick: () -> Unit = {},
     changeExpandedState: () -> Unit = {}
 ) {
     val inLauncherScreen = mainScreenKey == null || mainScreenKey is NormalNavKey.LauncherMain
-    val inDownloadScreen = mainScreenKey is NestedNavKey.Download
+    val inVersionSettingsScreen = mainScreenKey is NestedNavKey.VersionSettings
     val inSettingsScreen = mainScreenKey is NestedNavKey.Settings
     val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
 
@@ -248,10 +302,46 @@ private fun TopBar(
                     }
                     .fillMaxHeight()
             ) {
-                AnimatedVisibility(visible = !inLauncherScreen) {
-                    Row(modifier = Modifier.fillMaxHeight()) {
-                        Spacer(Modifier.width(12.dp))
+                // Boutons Discord et Boutique (visible uniquement sur la page principale)
+                AnimatedVisibility(visible = inLauncherScreen) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .padding(start = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy((-8).dp)
+                    ) {
+                        IconButton(
+                            modifier = Modifier.fillMaxHeight(),
+                            onClick = onDiscordClick
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_discord),
+                                contentDescription = "Discord",
+                                modifier = Modifier.size(22.dp)
+                            )
+                        }
 
+                        IconButton(
+                            modifier = Modifier.fillMaxHeight(),
+                            onClick = onShopClick
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_shop),
+                                contentDescription = "Shop",
+                                modifier = Modifier
+                                    .size(22.dp)
+                                    .offset(y = (-2).dp)
+                            )
+                        }
+                    }
+                }
+
+                // Boutons Retour et Accueil (visible uniquement hors page principale)
+                AnimatedVisibility(visible = !inLauncherScreen) {
+                    Row(
+                        modifier = Modifier.fillMaxHeight(),
+                        horizontalArrangement = Arrangement.spacedBy((-12).dp)
+                    ) {
                         IconButton(
                             modifier = Modifier.fillMaxHeight(),
                             onClick = {
@@ -261,7 +351,7 @@ private fun TopBar(
                             }
                         ) {
                             Icon(
-                                modifier = Modifier.size(24.dp),
+                                modifier = Modifier.size(22.dp),
                                 imageVector = Icons.AutoMirrored.Filled.KeyboardBackspace,
                                 contentDescription = stringResource(R.string.generic_back)
                             )
@@ -305,8 +395,7 @@ private fun TopBar(
                         bottom.linkTo(parent.bottom)
                         end.linkTo(parent.end, margin = 12.dp)
                     },
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 AnimatedVisibility(visible = !(isTasksExpanded || taskRunning)) {
                     Row(
@@ -328,10 +417,10 @@ private fun TopBar(
                 }
 
                 TopBarRailItem(
-                    selected = inDownloadScreen,
-                    icon = Icons.Filled.Download,
-                    text = stringResource(R.string.generic_download),
-                    onClick = { if (!inDownloadScreen) toDownloadScreen() },
+                    selected = inVersionSettingsScreen,
+                    icon = Icons.Filled.Extension,
+                    text = stringResource(R.string.mods_manage),
+                    onClick = { if (!inVersionSettingsScreen) toVersionSettings() },
                     color = contentColor
                 )
                 TopBarRailItem(
@@ -473,7 +562,6 @@ private fun NavigationUI(
                         backStack.removeLastOrNull()
                     }
                 }
-                // ✅ CELLE-CI MANQUAIT !
                 entry<NestedNavKey.VersionSettings> { key ->
                     VersionSettingsScreen(
                         key = key,
@@ -526,12 +614,20 @@ private fun TaskMenu(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(all = 6.dp),
-            influencedByBackground = false,
+            influencedByBackground = true,
             shape = MaterialTheme.shapes.extraLarge,
-            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 6.dp)
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 0.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceBright.copy(alpha = 0.65f),
+                contentColor = MaterialTheme.colorScheme.onSurface
+            )
         ) {
             Column {
-                CardTitleLayout {
+                CardTitleLayout(
+                    alpha = 0.7f,
+                    color = MaterialTheme.colorScheme.surfaceBright,
+                    influencedByBackground = false
+                ) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -591,19 +687,19 @@ fun TaskItem(
     taskMessageRes: Int?,
     taskMessageArgs: Array<out Any>?,
     modifier: Modifier = Modifier,
-    influencedByBackground: Boolean = false,
+    influencedByBackground: Boolean = true,
     shape: Shape = MaterialTheme.shapes.large,
-    color: Color = itemLayoutColor(influencedByBackground = influencedByBackground),
+    color: Color = MaterialTheme.colorScheme.surfaceBright,
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
-    shadowElevation: Dp = itemLayoutShadowElevation(influencedByBackground = influencedByBackground),
+    shadowElevation: Dp = 0.dp,
     onCancelClick: () -> Unit = {}
 ) {
     Surface(
         modifier = modifier,
         shape = shape,
-        color = color,
+        color = color.copy(alpha = 0.7f),
         contentColor = contentColor,
-        shadowElevation = shadowElevation
+        shadowElevation = shadowElevation,
     ) {
         Row(
             modifier = Modifier.padding(all = 8.dp),

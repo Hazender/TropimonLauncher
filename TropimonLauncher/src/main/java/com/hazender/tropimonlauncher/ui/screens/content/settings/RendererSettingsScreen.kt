@@ -30,10 +30,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -44,20 +40,14 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
 import com.hazender.tropimonlauncher.R
 import com.hazender.tropimonlauncher.game.plugin.driver.Driver
-import com.hazender.tropimonlauncher.game.plugin.driver.DriverPluginManager
 import com.hazender.tropimonlauncher.game.renderer.RendererInterface
-import com.hazender.tropimonlauncher.game.renderer.Renderers
 import com.hazender.tropimonlauncher.setting.AllSettings
 import com.hazender.tropimonlauncher.setting.unit.floatRange
 import com.hazender.tropimonlauncher.ui.base.BaseScreen
 import com.hazender.tropimonlauncher.ui.components.AnimatedColumn
-import com.hazender.tropimonlauncher.ui.components.SimpleAlertDialog
-import com.hazender.tropimonlauncher.ui.components.SwitchLayout
 import com.hazender.tropimonlauncher.ui.screens.NestedNavKey
 import com.hazender.tropimonlauncher.ui.screens.NormalNavKey
 import com.hazender.tropimonlauncher.ui.screens.content.settings.layouts.SettingsBackground
-import com.hazender.tropimonlauncher.utils.device.checkVulkanSupport
-import com.hazender.tropimonlauncher.utils.isAdrenoGPU
 
 @Composable
 fun RendererSettingsScreen(
@@ -82,31 +72,6 @@ fun RendererSettingsScreen(
                 SettingsBackground(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                 ) {
-                    ListSettingsLayout(
-                        modifier = Modifier.fillMaxWidth(),
-                        unit = AllSettings.renderer,
-                        items = Renderers.getCompatibleRenderers(context).second,
-                        title = stringResource(R.string.settings_renderer_global_renderer_title),
-                        summary = stringResource(R.string.settings_renderer_global_renderer_summary),
-                        getItemText = { it.getRendererName() },
-                        getItemId = { it.getUniqueIdentifier() },
-                        getItemSummary = {
-                            RendererSummaryLayout(it)
-                        }
-                    )
-
-                    ListSettingsLayout(
-                        modifier = Modifier.fillMaxWidth(),
-                        unit = AllSettings.vulkanDriver,
-                        items = DriverPluginManager.getDriverList(),
-                        title = stringResource(R.string.settings_renderer_global_vulkan_driver_title),
-                        getItemText = { it.name },
-                        getItemId = { it.id },
-                        getItemSummary = {
-                            DriverSummaryLayout(it)
-                        }
-                    )
-
                     SliderSettingsLayout(
                         modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.resolutionRatio,
@@ -137,62 +102,11 @@ fun RendererSettingsScreen(
                         summary = stringResource(R.string.settings_renderer_sustained_performance_summary)
                     )
 
-                    if (checkVulkanSupport(LocalContext.current.packageManager)) {
-                        var adrenoGPUAlert by remember { mutableStateOf(false) }
-
-                        var value by remember { mutableStateOf(AllSettings.zinkPreferSystemDriver.getValue()) }
-
-                        fun change(value1: Boolean) {
-                            value = value1
-                            AllSettings.zinkPreferSystemDriver.save(value)
-                        }
-
-                        SwitchLayout(
-                            modifier = Modifier.fillMaxWidth(),
-                            title = stringResource(R.string.settings_renderer_vulkan_driver_system_title),
-                            summary = stringResource(R.string.settings_renderer_vulkan_driver_system_summary),
-                            checked = value,
-                            onCheckedChange = { checked ->
-                                if (checked && isAdrenoGPU()) adrenoGPUAlert = true
-                                else change(checked)
-                            }
-                        )
-
-                        if (adrenoGPUAlert) {
-                            SimpleAlertDialog(
-                                title = stringResource(R.string.generic_warning),
-                                text = stringResource(R.string.settings_renderer_zink_driver_adreno),
-                                onConfirm = {
-                                    change(true)
-                                    adrenoGPUAlert = false
-                                },
-                                onDismiss = {
-                                    change(false)
-                                    adrenoGPUAlert = false
-                                }
-                            )
-                        }
-                    }
-
-                    SwitchSettingsLayout(
-                        modifier = Modifier.fillMaxWidth(),
-                        unit = AllSettings.vsyncInZink,
-                        title = stringResource(R.string.settings_renderer_vsync_in_zink_title),
-                        summary = stringResource(R.string.settings_renderer_vsync_in_zink_summary)
-                    )
-
                     SwitchSettingsLayout(
                         modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.bigCoreAffinity,
                         title = stringResource(R.string.settings_renderer_force_big_core_title),
                         summary = stringResource(R.string.settings_renderer_force_big_core_summary)
-                    )
-
-                    SwitchSettingsLayout(
-                        modifier = Modifier.fillMaxWidth(),
-                        unit = AllSettings.dumpShaders,
-                        title = stringResource(R.string.settings_renderer_shader_dump_title),
-                        summary = stringResource(R.string.settings_renderer_shader_dump_summary)
                     )
                 }
             }

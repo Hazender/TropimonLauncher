@@ -1,19 +1,6 @@
 /*
  * Zalith Launcher 2
  * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
  */
 
 package com.hazender.tropimonlauncher.ui.screens.content
@@ -27,11 +14,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -39,21 +24,17 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.hazender.tropimonlauncher.R
@@ -63,14 +44,8 @@ import com.hazender.tropimonlauncher.coroutine.Task
 import com.hazender.tropimonlauncher.coroutine.TaskSystem
 import com.hazender.tropimonlauncher.game.account.Account
 import com.hazender.tropimonlauncher.game.account.AccountsManager
-import com.hazender.tropimonlauncher.game.account.addOtherServer
-import com.hazender.tropimonlauncher.game.account.auth_server.AuthServerHelper
-import com.hazender.tropimonlauncher.game.account.auth_server.ResponseException
-import com.hazender.tropimonlauncher.game.account.isAuthServerAccount
-import com.hazender.tropimonlauncher.game.account.isLocalAccount
 import com.hazender.tropimonlauncher.game.account.isMicrosoftAccount
 import com.hazender.tropimonlauncher.game.account.isMicrosoftLogging
-import com.hazender.tropimonlauncher.game.account.localLogin
 import com.hazender.tropimonlauncher.game.account.microsoft.MINECRAFT_SERVICES_URL
 import com.hazender.tropimonlauncher.game.account.microsoft.MinecraftProfileException
 import com.hazender.tropimonlauncher.game.account.microsoft.NotPurchasedMinecraftException
@@ -79,9 +54,7 @@ import com.hazender.tropimonlauncher.game.account.microsoft.toLocal
 import com.hazender.tropimonlauncher.game.account.microsoftLogin
 import com.hazender.tropimonlauncher.game.account.refreshMicrosoft
 import com.hazender.tropimonlauncher.game.account.wardrobe.EmptyCape
-import com.hazender.tropimonlauncher.game.account.wardrobe.SkinModelType
 import com.hazender.tropimonlauncher.game.account.wardrobe.capeTranslatedName
-import com.hazender.tropimonlauncher.game.account.wardrobe.getLocalUUIDWithSkinModel
 import com.hazender.tropimonlauncher.game.account.wardrobe.validateSkinFile
 import com.hazender.tropimonlauncher.game.account.yggdrasil.changeCape
 import com.hazender.tropimonlauncher.game.account.yggdrasil.executeWithAuthorization
@@ -91,28 +64,18 @@ import com.hazender.tropimonlauncher.game.account.yggdrasil.uploadSkin
 import com.hazender.tropimonlauncher.path.PathManager
 import com.hazender.tropimonlauncher.ui.base.BaseScreen
 import com.hazender.tropimonlauncher.ui.components.BackgroundCard
-import com.hazender.tropimonlauncher.ui.components.MarqueeText
-import com.hazender.tropimonlauncher.ui.components.ScalingActionButton
 import com.hazender.tropimonlauncher.ui.components.ScalingLabel
 import com.hazender.tropimonlauncher.ui.components.SimpleAlertDialog
-import com.hazender.tropimonlauncher.ui.components.SimpleEditDialog
 import com.hazender.tropimonlauncher.ui.components.SimpleListDialog
 import com.hazender.tropimonlauncher.ui.screens.NormalNavKey
 import com.hazender.tropimonlauncher.ui.screens.content.elements.AccountItem
 import com.hazender.tropimonlauncher.ui.screens.content.elements.AccountOperation
-import com.hazender.tropimonlauncher.ui.screens.content.elements.AccountSkinOperation
-import com.hazender.tropimonlauncher.ui.screens.content.elements.LocalLoginDialog
-import com.hazender.tropimonlauncher.ui.screens.content.elements.LocalLoginOperation
 import com.hazender.tropimonlauncher.ui.screens.content.elements.LoginItem
 import com.hazender.tropimonlauncher.ui.screens.content.elements.MicrosoftChangeCapeOperation
 import com.hazender.tropimonlauncher.ui.screens.content.elements.MicrosoftChangeSkinOperation
 import com.hazender.tropimonlauncher.ui.screens.content.elements.MicrosoftLoginOperation
 import com.hazender.tropimonlauncher.ui.screens.content.elements.MicrosoftLoginTipDialog
-import com.hazender.tropimonlauncher.ui.screens.content.elements.OtherLoginOperation
-import com.hazender.tropimonlauncher.ui.screens.content.elements.OtherServerLoginDialog
 import com.hazender.tropimonlauncher.ui.screens.content.elements.SelectSkinModelDialog
-import com.hazender.tropimonlauncher.ui.screens.content.elements.ServerItem
-import com.hazender.tropimonlauncher.ui.screens.content.elements.ServerOperation
 import com.hazender.tropimonlauncher.utils.animation.swapAnimateDpAsState
 import com.hazender.tropimonlauncher.utils.logging.Logger.lError
 import com.hazender.tropimonlauncher.utils.network.safeBodyAsJson
@@ -126,7 +89,6 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
-import org.apache.commons.io.FileUtils
 import java.io.File
 import java.net.ConnectException
 import java.net.UnknownHostException
@@ -143,9 +105,6 @@ fun AccountManageScreen(
     var microsoftLoginOperation by remember { mutableStateOf<MicrosoftLoginOperation>(MicrosoftLoginOperation.None) }
     var microsoftChangeSkinOperation by remember { mutableStateOf<MicrosoftChangeSkinOperation>(MicrosoftChangeSkinOperation.None) }
     var microsoftChangeCapeOperation by remember { mutableStateOf<MicrosoftChangeCapeOperation>(MicrosoftChangeCapeOperation.None) }
-    var localLoginOperation by remember { mutableStateOf<LocalLoginOperation>(LocalLoginOperation.None) }
-    var otherLoginOperation by remember { mutableStateOf<OtherLoginOperation>(OtherLoginOperation.None) }
-    var serverOperation by remember { mutableStateOf<ServerOperation>(ServerOperation.None) }
 
     BaseScreen(
         screenKey = NormalNavKey.AccountManager,
@@ -160,10 +119,7 @@ fun AccountManageScreen(
                     .fillMaxHeight()
                     .padding(all = 12.dp)
                     .weight(3f),
-                updateMicrosoftOperation = { microsoftLoginOperation = it },
-                updateLocalLoginOperation = { localLoginOperation = it },
-                updateOtherLoginOperation = { otherLoginOperation = it },
-                updateServerOperation = { serverOperation = it }
+                updateMicrosoftOperation = { microsoftLoginOperation = it }
             )
             AccountsLayout(
                 isVisible = isVisible,
@@ -182,7 +138,7 @@ fun AccountManageScreen(
         }
     }
 
-    //微软账号操作逻辑
+    // Gestion de la connexion Microsoft
     MicrosoftLoginOperation(
         checkIfInWebScreen = {
             backStackViewModel.mainScreen.currentKey is NormalNavKey.WebScreen
@@ -197,39 +153,17 @@ fun AccountManageScreen(
         submitError = submitError
     )
 
-    //微软账号更改皮肤操作逻辑
+    // Gestion du changement de skin Microsoft
     MicrosoftChangeSkinOperation(
         operation = microsoftChangeSkinOperation,
         updateOperation = { microsoftChangeSkinOperation = it },
         submitError = submitError
     )
 
-    //微软账号更改披风操作逻辑
+    // Gestion du changement de cape Microsoft
     MicrosoftChangeCapeOperation(
         operation = microsoftChangeCapeOperation,
         updateOperation = { microsoftChangeCapeOperation = it },
-        submitError = submitError
-    )
-
-    //离线账号操作逻辑
-    LocalLoginOperation(
-        localLoginOperation = localLoginOperation,
-        updateOperation = { localLoginOperation = it },
-        openLink = openLink
-    )
-
-    //外置账号操作逻辑
-    OtherLoginOperation(
-        otherLoginOperation = otherLoginOperation,
-        updateOperation = { otherLoginOperation = it },
-        submitError = submitError,
-        openLink = openLink
-    )
-
-    //外置服务器操作逻辑
-    ServerTypeOperation(
-        serverOperation = serverOperation,
-        updateServerOperation = { serverOperation = it },
         submitError = submitError
     )
 }
@@ -238,10 +172,7 @@ fun AccountManageScreen(
 private fun ServerTypeMenu(
     isVisible: Boolean,
     modifier: Modifier = Modifier,
-    updateMicrosoftOperation: (MicrosoftLoginOperation) -> Unit,
-    updateLocalLoginOperation: (LocalLoginOperation) -> Unit,
-    updateOtherLoginOperation: (OtherLoginOperation) -> Unit,
-    updateServerOperation: (ServerOperation) -> Unit
+    updateMicrosoftOperation: (MicrosoftLoginOperation) -> Unit
 ) {
     val xOffset by swapAnimateDpAsState(
         targetValue = (-40).dp,
@@ -269,37 +200,10 @@ private fun ServerTypeMenu(
                     updateMicrosoftOperation(MicrosoftLoginOperation.Tip)
                 }
             }
-            LoginItem(
-                modifier = Modifier.fillMaxWidth(),
-                serverName = stringResource(R.string.account_type_local)
-            ) {
-                updateLocalLoginOperation(LocalLoginOperation.Edit)
-            }
-
-            val authServers by AccountsManager.authServersFlow.collectAsState()
-            authServers.forEach { server ->
-                ServerItem(
-                    server = server,
-                    onClick = { updateOtherLoginOperation(OtherLoginOperation.OnLogin(server)) },
-                    onDeleteClick = { updateServerOperation(ServerOperation.Delete(server)) }
-                )
-            }
-        }
-
-        ScalingActionButton(
-            modifier = Modifier
-                .padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp))
-                .fillMaxWidth(),
-            onClick = { updateServerOperation(ServerOperation.AddNew) }
-        ) {
-            MarqueeText(text = stringResource(R.string.account_add_new_server_button))
         }
     }
 }
 
-/**
- * 微软账号登陆操作逻辑
- */
 @Composable
 private fun MicrosoftLoginOperation(
     checkIfInWebScreen: () -> Boolean,
@@ -356,11 +260,9 @@ private fun MicrosoftChangeSkinOperation(
                 dispatcher = Dispatchers.IO,
                 task = {
                     context.copyLocalFile(uri, cacheFile)
-                    //导入成功后，检查图片文件像素尺寸
                     if (validateSkinFile(cacheFile)) {
                         updateOperation(MicrosoftChangeSkinOperation.SelectSkinModel(account, cacheFile))
                     } else {
-                        //像素尺寸不符合要求
                         submitError(
                             ErrorViewModel.ThrowableMessage(
                                 title = context.getString(R.string.generic_warning),
@@ -427,7 +329,6 @@ private fun MicrosoftChangeSkinOperation(
                             AccountsManager.suspendSaveAccount(account)
                         }
                     )
-                    //刷新本地皮肤
                     task.updateMessage(R.string.account_change_skin_update_local)
                     runCatching {
                         account.downloadSkin()
@@ -439,7 +340,6 @@ private fun MicrosoftChangeSkinOperation(
                             )
                         )
                     }
-                    //刷新本地皮肤后，使用Toast反馈给用户
                     withContext(Dispatchers.Main) {
                         Toast.makeText(
                             context,
@@ -480,9 +380,6 @@ private fun MicrosoftChangeSkinOperation(
     }
 }
 
-/**
- * 微软账号更改披风操作逻辑
- */
 @Composable
 private fun MicrosoftChangeCapeOperation(
     operation: MicrosoftChangeCapeOperation,
@@ -578,7 +475,6 @@ private fun MicrosoftChangeCapeOperation(
                             AccountsManager.suspendSaveAccount(account)
                         }
                     )
-                    //已变更披风，展示一条Toast反馈用户
                     withContext(Dispatchers.Main) {
                         val text = if (cape == EmptyCape) {
                             context.getString(R.string.account_change_cape_apply_reset)
@@ -616,208 +512,6 @@ private fun MicrosoftChangeCapeOperation(
             )
             TaskSystem.submitTask(task)
         }
-    }
-}
-
-/**
- * 离线账号登陆操作逻辑
- */
-@Composable
-private fun LocalLoginOperation(
-    localLoginOperation: LocalLoginOperation,
-    updateOperation: (LocalLoginOperation) -> Unit = {},
-    openLink: (url: String) -> Unit = {}
-) {
-    when (localLoginOperation) {
-        is LocalLoginOperation.None -> {}
-        is LocalLoginOperation.Edit -> {
-            LocalLoginDialog(
-                onDismissRequest = { updateOperation(LocalLoginOperation.None) },
-                onConfirm = { isUserNameInvalid, userName ->
-                    val operation = if (isUserNameInvalid) {
-                        LocalLoginOperation.Alert(userName)
-                    } else {
-                        LocalLoginOperation.Create(userName)
-                    }
-                    updateOperation(operation)
-                },
-                openLink = openLink
-            )
-        }
-        is LocalLoginOperation.Create -> {
-            localLogin(userName = localLoginOperation.userName)
-            //复位
-            updateOperation(LocalLoginOperation.None)
-        }
-        is LocalLoginOperation.Alert -> {
-            SimpleAlertDialog(
-                title = stringResource(R.string.account_supporting_username_invalid_title),
-                text = {
-                    Text(text = stringResource(R.string.account_supporting_username_invalid_local_message_hint1))
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = stringResource(R.string.account_supporting_username_invalid_local_message_hint2),
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(text = stringResource(R.string.account_supporting_username_invalid_local_message_hint3))
-                    Text(text = stringResource(R.string.account_supporting_username_invalid_local_message_hint4))
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = stringResource(R.string.account_supporting_username_invalid_local_message_hint5),
-                        fontWeight = FontWeight.Bold
-                    )
-                },
-                confirmText = stringResource(R.string.account_supporting_username_invalid_still_use),
-                onConfirm = {
-                    updateOperation(LocalLoginOperation.Create(localLoginOperation.userName))
-                },
-                onCancel = {
-                    updateOperation(LocalLoginOperation.None)
-                }
-            )
-        }
-    }
-}
-
-@Composable
-private fun OtherLoginOperation(
-    otherLoginOperation: OtherLoginOperation,
-    updateOperation: (OtherLoginOperation) -> Unit,
-    submitError: (ErrorViewModel.ThrowableMessage) -> Unit,
-    openLink: (link: String) -> Unit
-) {
-    val context = LocalContext.current
-    when (otherLoginOperation) {
-        is OtherLoginOperation.None -> {}
-        is OtherLoginOperation.OnLogin -> {
-            OtherServerLoginDialog(
-                server = otherLoginOperation.server,
-                onRegisterClick = { url ->
-                    openLink(url)
-                    updateOperation(OtherLoginOperation.None)
-                },
-                onDismissRequest = { updateOperation(OtherLoginOperation.None) },
-                onConfirm = { email, password ->
-                    updateOperation(OtherLoginOperation.None)
-                    AuthServerHelper(
-                        otherLoginOperation.server, email, password,
-                        onSuccess = { account, task ->
-                            task.updateMessage(R.string.account_logging_in_saving)
-                            account.downloadSkin()
-                            AccountsManager.suspendSaveAccount(account)
-                        },
-                        onFailed = { th ->
-                            updateOperation(OtherLoginOperation.OnFailed(th))
-                        }
-                    ).createNewAccount(context) { availableProfiles, selectedFunction ->
-                        updateOperation(
-                            OtherLoginOperation.SelectRole(
-                                availableProfiles,
-                                selectedFunction
-                            )
-                        )
-                    }
-                }
-            )
-        }
-        is OtherLoginOperation.OnFailed -> {
-            val message: String = when (val th = otherLoginOperation.th) {
-                is ResponseException -> th.responseMessage
-                is HttpRequestTimeoutException -> stringResource(R.string.error_timeout)
-                is UnknownHostException, is UnresolvedAddressException -> stringResource(R.string.error_network_unreachable)
-                is ConnectException -> stringResource(R.string.error_connection_failed)
-                is io.ktor.client.plugins.ResponseException -> {
-                    val statusCode = th.response.status
-                    val res = when (statusCode) {
-                        HttpStatusCode.Unauthorized -> R.string.error_unauthorized
-                        HttpStatusCode.NotFound -> R.string.error_notfound
-                        else -> R.string.error_client_error
-                    }
-                    stringResource(res, statusCode)
-                }
-                else -> {
-                    lError("An unknown exception was caught!", th)
-                    val errorMessage = th.localizedMessage ?: th.message ?: th::class.qualifiedName ?: "Unknown error"
-                    stringResource(R.string.error_unknown, errorMessage)
-                }
-            }
-
-            submitError(
-                ErrorViewModel.ThrowableMessage(
-                    title = stringResource(R.string.account_logging_in_failed),
-                    message = message
-                )
-            )
-            updateOperation(OtherLoginOperation.None)
-        }
-        is OtherLoginOperation.SelectRole -> {
-            SimpleListDialog(
-                title = stringResource(R.string.account_other_login_select_role),
-                items = otherLoginOperation.profiles,
-                itemTextProvider = { it.name },
-                onItemSelected = { otherLoginOperation.selected(it) },
-                onDismissRequest = { updateOperation(OtherLoginOperation.None) }
-            )
-        }
-    }
-}
-
-@Composable
-private fun ServerTypeOperation(
-    serverOperation: ServerOperation,
-    updateServerOperation: (ServerOperation) -> Unit,
-    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
-) {
-    when (serverOperation) {
-        is ServerOperation.AddNew -> {
-            var serverUrl by rememberSaveable { mutableStateOf("") }
-            SimpleEditDialog(
-                title = stringResource(R.string.account_add_new_server),
-                value = serverUrl,
-                onValueChange = { serverUrl = it.trim() },
-                label = { Text(text = stringResource(R.string.account_label_server_url)) },
-                singleLine = true,
-                onDismissRequest = { updateServerOperation(ServerOperation.None) },
-                onConfirm = {
-                    if (serverUrl.isNotEmpty()) {
-                        updateServerOperation(ServerOperation.Add(serverUrl))
-                    }
-                }
-            )
-        }
-        is ServerOperation.Add -> {
-            addOtherServer(
-                serverUrl = serverOperation.serverUrl,
-                onThrowable = { updateServerOperation(ServerOperation.OnThrowable(it)) }
-            )
-            updateServerOperation(ServerOperation.None)
-        }
-        is ServerOperation.Delete -> {
-            val server = serverOperation.server
-            SimpleAlertDialog(
-                title = stringResource(R.string.account_other_login_delete_server_title),
-                text = stringResource(
-                    R.string.account_other_login_delete_server_message,
-                    server.serverName
-                ),
-                onDismiss = { updateServerOperation(ServerOperation.None) },
-                onConfirm = {
-                    AccountsManager.deleteAuthServer(server)
-                    updateServerOperation(ServerOperation.None)
-                }
-            )
-        }
-        is ServerOperation.OnThrowable -> {
-            submitError(
-                ErrorViewModel.ThrowableMessage(
-                    title = stringResource(R.string.account_other_login_adding_failure),
-                    message = serverOperation.throwable.getMessageOrToString()
-                )
-            )
-            updateServerOperation(ServerOperation.None)
-        }
-        is ServerOperation.None -> {}
     }
 }
 
@@ -859,26 +553,13 @@ private fun AccountsLayout(
             ) {
                 items(accounts) { account ->
                     var refreshAvatar by remember { mutableStateOf(false) }
-                    var accountSkinOperation by remember { mutableStateOf<AccountSkinOperation>(AccountSkinOperation.None) }
-                    AccountSkinOperation(
-                        account = account,
-                        accountSkinOperation = accountSkinOperation,
-                        updateOperation = { accountSkinOperation = it },
-                        submitError = submitError,
-                        onRefreshAvatar = { refreshAvatar = !refreshAvatar }
-                    )
 
                     val skinPicker = rememberLauncherForActivityResult(
                         contract = ActivityResultContracts.OpenDocument()
                     ) { uri ->
                         uri?.let { result ->
-                            when {
-                                account.isLocalAccount() -> {
-                                    accountSkinOperation = AccountSkinOperation.SelectSkinModel(result)
-                                }
-                                account.isMicrosoftAccount() -> {
-                                    onMicrosoftChangeSkin(account, result)
-                                }
+                            if (account.isMicrosoftAccount()) {
+                                onMicrosoftChangeSkin(account, result)
                             }
                         }
                     }
@@ -894,18 +575,12 @@ private fun AccountsLayout(
                             AccountsManager.setCurrentAccount(acc)
                         },
                         onChangeSkin = {
-                            if (!account.isAuthServerAccount()) {
-                                skinPicker.launch(arrayOf("image/*"))
-                            }
+                            skinPicker.launch(arrayOf("image/*"))
                         },
                         onChangeCape = {
-                            if (account.isMicrosoftAccount()) {
-                                onMicrosoftChangeCape(account)
-                            }
+                            onMicrosoftChangeCape(account)
                         },
-                        onResetSkin = {
-                            accountSkinOperation = AccountSkinOperation.PreResetSkin
-                        },
+                        onResetSkin = {},
                         onRefreshClick = {
                             AccountsManager.refreshAccount(
                                 context = context,
@@ -933,99 +608,6 @@ private fun AccountsLayout(
 }
 
 @Composable
-private fun AccountSkinOperation(
-    account: Account,
-    accountSkinOperation: AccountSkinOperation,
-    updateOperation: (AccountSkinOperation) -> Unit,
-    submitError: (ErrorViewModel.ThrowableMessage) -> Unit,
-    onRefreshAvatar: () -> Unit = {}
-) {
-    val context = LocalContext.current
-    when (accountSkinOperation) {
-        is AccountSkinOperation.None -> {}
-        is AccountSkinOperation.SaveSkin -> {
-            LaunchedEffect(Unit) {
-                val skinFile = account.getSkinFile()
-                val cacheFile = File(PathManager.DIR_IMAGE_CACHE, skinFile.name)
-                TaskSystem.submitTask(
-                    Task.runTask(
-                        dispatcher = Dispatchers.IO,
-                        task = {
-                            context.copyLocalFile(accountSkinOperation.uri, cacheFile)
-                            if (validateSkinFile(cacheFile)) {
-                                //覆盖原本皮肤文件
-                                cacheFile.copyTo(target = skinFile, overwrite = true)
-                                FileUtils.deleteQuietly(cacheFile) //清除缓存皮肤文件
-                                AccountsManager.suspendSaveAccount(account)
-                                onRefreshAvatar()
-                                updateOperation(AccountSkinOperation.None)
-                            } else {
-                                //像素尺寸不符合要求
-                                submitError(
-                                    ErrorViewModel.ThrowableMessage(
-                                        title = context.getString(R.string.generic_warning),
-                                        message = context.getString(R.string.account_change_skin_invalid)
-                                    )
-                                )
-                                updateOperation(AccountSkinOperation.None)
-                            }
-                        },
-                        onError = { th ->
-                            FileUtils.deleteQuietly(cacheFile)
-                            submitError(
-                                ErrorViewModel.ThrowableMessage(
-                                    title = context.getString(R.string.error_import_image),
-                                    message = th.getMessageOrToString()
-                                )
-                            )
-                            onRefreshAvatar()
-                            updateOperation(AccountSkinOperation.None)
-                        }
-                    )
-                )
-            }
-        }
-        is AccountSkinOperation.SelectSkinModel -> {
-            SelectSkinModelDialog(
-                onDismissRequest = {
-                    updateOperation(AccountSkinOperation.None)
-                },
-                onSelected = { type ->
-                    account.skinModelType = type
-                    account.profileId = getLocalUUIDWithSkinModel(account.username, type)
-                    updateOperation(AccountSkinOperation.SaveSkin(accountSkinOperation.uri))
-                }
-            )
-        }
-        is AccountSkinOperation.PreResetSkin -> {
-            SimpleAlertDialog(
-                title = stringResource(R.string.generic_reset),
-                text = stringResource(R.string.account_change_skin_reset_skin_message),
-                onDismiss = { updateOperation(AccountSkinOperation.None) },
-                onConfirm = { updateOperation(AccountSkinOperation.ResetSkin) }
-            )
-        }
-        is AccountSkinOperation.ResetSkin -> {
-            TaskSystem.submitTask(
-                Task.runTask(
-                    dispatcher = Dispatchers.IO,
-                    task = {
-                        account.apply {
-                            FileUtils.deleteQuietly(getSkinFile())
-                            skinModelType = SkinModelType.NONE
-                            profileId = getLocalUUIDWithSkinModel(username, skinModelType)
-                            AccountsManager.suspendSaveAccount(this)
-                            onRefreshAvatar()
-                        }
-                    }
-                )
-            )
-            updateOperation(AccountSkinOperation.None)
-        }
-    }
-}
-
-@Composable
 private fun AccountOperation(
     accountOperation: AccountOperation,
     updateAccountOperation: (AccountOperation) -> Unit,
@@ -1034,7 +616,6 @@ private fun AccountOperation(
     val context = LocalContext.current
     when (accountOperation) {
         is AccountOperation.Delete -> {
-            //删除账号前弹出Dialog提醒
             SimpleAlertDialog(
                 title = stringResource(R.string.account_delete_title),
                 text = stringResource(R.string.account_delete_message,
@@ -1061,14 +642,10 @@ private fun AccountOperation(
     }
 }
 
-/**
- * 格式化账号登陆/刷新时遇到的各种错误
- */
 private fun Context.formatAccountError(th: Throwable) = when (th) {
     is NotPurchasedMinecraftException -> toLocal(this)
     is MinecraftProfileException -> th.toLocal(this)
     is XboxLoginException -> th.toLocal(this)
-    is ResponseException -> th.responseMessage
     is HttpRequestTimeoutException -> getString(R.string.error_timeout)
     is UnknownHostException, is UnresolvedAddressException -> getString(R.string.error_network_unreachable)
     is ConnectException -> getString(R.string.error_connection_failed)

@@ -102,6 +102,10 @@ fun microsoftLogin(
     val task = Task.runTask(
         id = MICROSOFT_LOGGING_TASK,
         dispatcher = Dispatchers.IO,
+        onCancel = {
+            // Fermer la page web si la tâche est annulée
+            backToMain()
+        },
         task = { task ->
             task.updateProgress(-1f, R.string.account_microsoft_fetch_device_code)
             val deviceCode = fetchDeviceCodeResponse(coroutineContext)
@@ -115,7 +119,14 @@ fun microsoftLogin(
             }
             toWeb(deviceCode.verificationUrl)
             task.updateProgress(-1f, R.string.account_microsoft_get_token, deviceCode.userCode)
+
+            // Variable pour arrêter la vérification une fois le token obtenu
+            var tokenReceived = false
+
             val tokenResponse = getTokenResponse(deviceCode, coroutineContext) { time ->
+                // Si le token est déjà reçu, ne plus vérifier
+                if (tokenReceived) return@getTokenResponse false
+
                 (!checkIfInWebScreen()).also { exit ->
                     if (exit && time > 0) withContext(Dispatchers.Main) {
                         //如果已退出网页，则视为用户想要退出登录
@@ -123,12 +134,20 @@ fun microsoftLogin(
                         Toast.makeText(
                             context,
                             context.getString(R.string.account_microsoft_exit_by_user),
-                            Toast.LENGTH_SHORT
+                            Toast.LENGTH_LONG
                         ).show()
                     }
                 }
             }
-            backToMain()
+
+            // Marquer que le token est reçu et fermer immédiatement la page web
+            tokenReceived = true
+            withContext(Dispatchers.Main) {
+                backToMain()
+            }
+
+            // Continuer l'authentification après fermeture de la page
+            task.updateProgress(0.1f, R.string.account_microsoft_getting_access_token)
             val account = microsoftAuth(
                 AuthType.Access,
                 tokenResponse.refreshToken,

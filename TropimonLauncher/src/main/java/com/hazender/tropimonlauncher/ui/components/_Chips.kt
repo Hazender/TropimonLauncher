@@ -37,6 +37,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
+import com.hazender.tropimonlauncher.ui.theme.TropimonTheme
 
 /**
  * A composable that displays a checkable chip, visually similar to a [FilterChip].
@@ -50,9 +51,9 @@ fun CheckChip(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     shape: Shape = FilterChipDefaults.shape,
-    colors: SelectableChipColors = FilterChipDefaults.filterChipColors(),
+    colors: SelectableChipColors = TropimonTheme.filterChipColors(),
     elevation: SelectableChipElevation? = FilterChipDefaults.filterChipElevation(),
-    border: BorderStroke? = FilterChipDefaults.filterChipBorder(enabled, selected),
+    border: BorderStroke = TropimonTheme.checkChipBorder(selected = selected, enabled = enabled),
     interactionSource: MutableInteractionSource? = null
 ) {
     FilterChip(

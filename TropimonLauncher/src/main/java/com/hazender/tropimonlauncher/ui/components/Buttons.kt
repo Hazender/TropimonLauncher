@@ -284,6 +284,7 @@ fun TooltipIconButton(
 @OptIn(ExperimentalMaterial3Api::class)
 fun TooltipIconButton(
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     tooltip: @Composable (TooltipScope.() -> Unit),
     content: @Composable () -> Unit
 ) {
@@ -306,7 +307,8 @@ fun TooltipIconButton(
                         tooltipState.show()
                     }
                 }
-            }
+            },
+            enabled = enabled
         ) {
             content()
         }

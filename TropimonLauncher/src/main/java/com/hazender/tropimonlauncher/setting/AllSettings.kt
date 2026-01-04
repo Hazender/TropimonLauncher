@@ -97,12 +97,12 @@ object AllSettings : SettingsRegistry() {
     /**
      * 版本自定义信息
      */
-    val versionCustomInfo = stringSetting("versionCustomInfo", "${InfoDistributor.LAUNCHER_IDENTIFIER}[zl_version]")
+    val versionCustomInfo = stringSetting("versionCustomInfo", InfoDistributor.LAUNCHER_IDENTIFIER)
 
     /**
      * 启动器的Java环境
      */
-    val javaRuntime = stringSetting("javaRuntime", "")
+    val javaRuntime = stringSetting("javaRuntime", "Internal-21")
 
     /**
      * 自动选择Java环境
@@ -112,7 +112,7 @@ object AllSettings : SettingsRegistry() {
     /**
      * 游戏内存分配大小
      */
-    val ramAllocation = intSetting("ramAllocation", -1, min = 256)
+    val ramAllocation = intSetting("ramAllocation", 2048, min = 256)
 
     /**
      * 自定义Jvm启动参数
@@ -313,7 +313,7 @@ object AllSettings : SettingsRegistry() {
     /**
      * 启动器UI深色主题
      */
-    val launcherDarkMode = enumSetting("launcherDarkMode", DarkMode.FollowSystem)
+    val launcherDarkMode = enumSetting("launcherDarkMode", DarkMode.Enable)
 
     /**
      * 启动器部分屏幕全屏
@@ -323,12 +323,12 @@ object AllSettings : SettingsRegistry() {
     /**
      * 动画倍速
      */
-    val launcherAnimateSpeed = intSetting("launcherAnimateSpeed", 5, 0..10)
+    val launcherAnimateSpeed = intSetting("launcherAnimateSpeed", 1, 0..10)
 
     /**
      * 动画幅度
      */
-    val launcherAnimateExtent = intSetting("launcherAnimateExtent", 5, 0..10)
+    val launcherAnimateExtent = intSetting("launcherAnimateExtent", 8, 0..10)
 
     /**
      * 启动器页面切换动画类型
@@ -338,7 +338,7 @@ object AllSettings : SettingsRegistry() {
     /**
      * 启动器背景元素不透明度
      */
-    val launcherBackgroundOpacity = intSetting("launcherBackgroundOpacity", 80, 20..100)
+    val launcherBackgroundOpacity = intSetting("launcherBackgroundOpacity", 65, 20..100)
 
     /**
      * 启动器日志保留天数
@@ -395,7 +395,7 @@ object AllSettings : SettingsRegistry() {
     /**
      * 游戏菜单悬浮窗不透明度
      */
-    val menuBallOpacity = intSetting("menuBallOpacity", 100, 20..100)
+    val menuBallOpacity = intSetting("menuBallOpacity", 65, 20..100)
 
     /**
      * 快捷栏判定箱计算规则
@@ -415,7 +415,7 @@ object AllSettings : SettingsRegistry() {
     /**
      * 游戏内控制布局的整体不透明度
      */
-    val controlsOpacity = intSetting("controlsOpacity", 100, 0..100)
+    val controlsOpacity = intSetting("controlsOpacity", 65, 0..100)
 
     /**
      * 控制布局编辑器：是否开启控件吸附功能

@@ -34,8 +34,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Build
-import androidx.compose.material.icons.outlined.Dashboard
 import androidx.compose.material.icons.outlined.Extension
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.Lightbulb
@@ -69,11 +67,10 @@ import com.hazender.tropimonlauncher.ui.screens.content.versions.ModsManagerScre
 import com.hazender.tropimonlauncher.ui.screens.content.versions.ResourcePackManageScreen
 import com.hazender.tropimonlauncher.ui.screens.content.versions.SavesManagerScreen
 import com.hazender.tropimonlauncher.ui.screens.content.versions.ShadersManagerScreen
-import com.hazender.tropimonlauncher.ui.screens.content.versions.VersionConfigScreen
-import com.hazender.tropimonlauncher.ui.screens.content.versions.VersionOverViewScreen
 import com.hazender.tropimonlauncher.ui.screens.navigateOnce
 import com.hazender.tropimonlauncher.ui.screens.onBack
 import com.hazender.tropimonlauncher.ui.screens.rememberTransitionSpec
+import com.hazender.tropimonlauncher.ui.theme.TropimonTheme
 import com.hazender.tropimonlauncher.utils.animation.swapAnimateDpAsState
 import com.hazender.tropimonlauncher.viewmodel.ErrorViewModel
 import com.hazender.tropimonlauncher.viewmodel.LaunchGameViewModel
@@ -117,12 +114,10 @@ fun VersionSettingsScreen(
 }
 
 private val settingItems = listOf(
-    CategoryItem(NormalNavKey.Versions.OverView, { CategoryIcon(Icons.Outlined.Dashboard, R.string.versions_settings_overview) }, R.string.versions_settings_overview),
-    CategoryItem(NormalNavKey.Versions.Config, { CategoryIcon(Icons.Outlined.Build, R.string.versions_settings_config) }, R.string.versions_settings_config),
-    CategoryItem(NormalNavKey.Versions.ModsManager, { CategoryIcon(Icons.Outlined.Extension, R.string.mods_manage) }, R.string.mods_manage, division = true),
-    CategoryItem(NormalNavKey.Versions.SavesManager, { CategoryIcon(Icons.Outlined.Public, R.string.saves_manage) }, R.string.saves_manage),
+    CategoryItem(NormalNavKey.Versions.ModsManager, { CategoryIcon(Icons.Outlined.Extension, R.string.mods_manage) }, R.string.mods_manage),
     CategoryItem(NormalNavKey.Versions.ResourcePackManager, { CategoryIcon(Icons.Outlined.Image, R.string.resource_pack_manage) }, R.string.resource_pack_manage),
-    CategoryItem(NormalNavKey.Versions.ShadersManager, { CategoryIcon(Icons.Outlined.Lightbulb, R.string.shader_pack_manage) }, R.string.shader_pack_manage)
+    CategoryItem(NormalNavKey.Versions.ShadersManager, { CategoryIcon(Icons.Outlined.Lightbulb, R.string.shader_pack_manage) }, R.string.shader_pack_manage),
+    CategoryItem(NormalNavKey.Versions.SavesManager, { CategoryIcon(Icons.Outlined.Public, R.string.saves_manage) }, R.string.saves_manage)
 )
 
 @Composable
@@ -173,7 +168,8 @@ private fun TabMenu(
                         maxLines = 1,
                         style = MaterialTheme.typography.labelMedium
                     )
-                }
+                },
+                colors = TropimonTheme.navigationRailItemColors()
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -211,24 +207,6 @@ private fun NavigationUI(
             transitionSpec = rememberTransitionSpec(),
             popTransitionSpec = rememberTransitionSpec(),
             entryProvider = entryProvider {
-                entry<NormalNavKey.Versions.OverView> {
-                    VersionOverViewScreen(
-                        mainScreenKey = mainScreenKey,
-                        versionsScreenKey = versionsScreenKey,
-                        backToMainScreen = backToMainScreen,
-                        version = version,
-                        submitError = submitError
-                    )
-                }
-                entry<NormalNavKey.Versions.Config> {
-                    VersionConfigScreen(
-                        mainScreenKey = mainScreenKey,
-                        versionsScreenKey = versionsScreenKey,
-                        version = version,
-                        backToMainScreen = backToMainScreen,
-                        submitError = submitError
-                    )
-                }
                 entry(NormalNavKey.Versions.ModsManager) {
                     ModsManagerScreen(
                         mainScreenKey = mainScreenKey,
@@ -247,21 +225,6 @@ private fun NavigationUI(
                                         NormalNavKey.DownloadAssets(platform, projectId, PlatformClasses.MOD)
                                     )
                                 }
-                            )
-                        },
-                        submitError = submitError
-                    )
-                }
-                entry<NormalNavKey.Versions.SavesManager> {
-                    SavesManagerScreen(
-                        mainScreenKey = mainScreenKey,
-                        versionsScreenKey = versionsScreenKey,
-                        launchGameViewModel = launchGameViewModel,
-                        version = version,
-                        backToMainScreen = backToMainScreen,
-                        swapToDownload = {
-                            backScreenViewModel.navigateToDownload(
-                                targetScreen = backScreenViewModel.downloadSavesScreen
                             )
                         },
                         submitError = submitError
@@ -292,6 +255,16 @@ private fun NavigationUI(
                                 targetScreen = backScreenViewModel.downloadShadersScreen
                             )
                         },
+                        submitError = submitError
+                    )
+                }
+                entry<NormalNavKey.Versions.SavesManager> {
+                    SavesManagerScreen(
+                        mainScreenKey = mainScreenKey,
+                        versionsScreenKey = versionsScreenKey,
+                        launchGameViewModel = launchGameViewModel,
+                        version = version,
+                        backToMainScreen = backToMainScreen,
                         submitError = submitError
                     )
                 }

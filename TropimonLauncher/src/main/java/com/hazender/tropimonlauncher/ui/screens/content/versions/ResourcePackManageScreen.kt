@@ -97,7 +97,6 @@ import com.hazender.tropimonlauncher.game.version.installed.Version
 import com.hazender.tropimonlauncher.game.version.installed.VersionFolders
 import com.hazender.tropimonlauncher.ui.base.BaseScreen
 import com.hazender.tropimonlauncher.ui.components.CardTitleLayout
-import com.hazender.tropimonlauncher.ui.components.ContentCheckBox
 import com.hazender.tropimonlauncher.ui.components.EdgeDirection
 import com.hazender.tropimonlauncher.ui.components.IconTextButton
 import com.hazender.tropimonlauncher.ui.components.ProgressDialog
@@ -444,15 +443,6 @@ private fun ResourcePackHeader(
                         .horizontalScroll(scrollState),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    ContentCheckBox(
-                        checked = packFilter.onlyShowValid,
-                        onCheckedChange = { changePackFilter(packFilter.copy(onlyShowValid = it)) }
-                    ) {
-                        Text(
-                            text = stringResource(R.string.manage_only_show_valid),
-                            style = MaterialTheme.typography.labelMedium
-                        )
-                    }
 
                     Spacer(modifier = Modifier.width(12.dp))
 

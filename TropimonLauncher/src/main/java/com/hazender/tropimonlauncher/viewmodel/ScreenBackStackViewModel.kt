@@ -48,7 +48,7 @@ class ScreenBackStackViewModel : ViewModel() {
 
     init {
         mainScreen.backStack.addIfEmpty(NormalNavKey.LauncherMain)
-        settingsScreen.backStack.addIfEmpty(NormalNavKey.Settings.Renderer)
+        settingsScreen.backStack.addIfEmpty(NormalNavKey.Settings.Launcher)
         //下载嵌套子屏幕
         downloadGameScreen.backStack.addIfEmpty(NormalNavKey.DownloadGame.SelectGameVersion)
         downloadModPackScreen.backStack.addIfEmpty(NormalNavKey.SearchModPack)

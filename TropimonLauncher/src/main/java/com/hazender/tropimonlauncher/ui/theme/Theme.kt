@@ -18,12 +18,17 @@
 
 package com.hazender.tropimonlauncher.ui.theme
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationRailItemColors
 import androidx.compose.material3.NavigationRailItemDefaults
+import androidx.compose.material3.SelectableChipColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import com.hazender.tropimonlauncher.viewmodel.BackgroundViewModel
 import com.hazender.tropimonlauncher.viewmodel.LocalBackgroundViewModel
 
@@ -87,7 +92,7 @@ fun ZalithLauncherTheme(
     CompositionLocalProvider(LocalBackgroundViewModel provides backgroundViewModel) {
         MaterialTheme(
             colorScheme = tropimonColorScheme,
-            typography = AppTypography,
+            typography = RighteousTypography,
             content = content
         )
     }
@@ -101,11 +106,55 @@ object TropimonTheme {
     fun navigationRailItemColors(): NavigationRailItemColors =
         NavigationRailItemDefaults.colors(
             // Le fond de la sélection devient SOMBRE
-            indicatorColor = MaterialTheme.colorScheme.outlineVariant,
+            indicatorColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.65f),
 
             // L'icône et le texte deviennent CLAIRS (bleu-cyan)
             selectedIconColor = MaterialTheme.colorScheme.primary,
             selectedTextColor = MaterialTheme.colorScheme.primary,
 
         )
+
+    @Composable
+    fun filterChipColors(): SelectableChipColors {
+        val colors = MaterialTheme.colorScheme
+
+        return SelectableChipColors(
+            containerColor               = colors.surfaceBright.copy(alpha = 0.65f),
+            labelColor                   = colors.onSurfaceVariant,
+            leadingIconColor             = colors.onSurfaceVariant,
+            trailingIconColor            = colors.onSurfaceVariant,
+
+            disabledContainerColor       = Color.Transparent,
+            disabledLabelColor           = colors.onSurface.copy(alpha = 0.38f),
+            disabledLeadingIconColor     = colors.onSurface.copy(alpha = 0.38f),
+            disabledTrailingIconColor    = colors.onSurface.copy(alpha = 0.38f),
+
+            selectedContainerColor       = colors.surfaceBright.copy(alpha = 0.65f),
+            disabledSelectedContainerColor = colors.primary.copy(alpha = 0.12f),
+
+            selectedLabelColor           = colors.primary,
+            selectedLeadingIconColor     = colors.primary,
+            selectedTrailingIconColor    = colors.primary,
+        )
+    }
+
+    @Composable
+    fun checkChipBorder(
+        selected: Boolean,
+        enabled: Boolean = true
+    ): BorderStroke {
+        val colors = MaterialTheme.colorScheme
+
+        if (!enabled) {
+            return BorderStroke(
+                width = 1.dp,
+                color = colors.outline.copy(alpha = 0.12f)
+            )
+        }
+
+        return BorderStroke(
+            width = if (selected) 2.dp else 1.dp,
+            color = if (selected) colors.primary else colors.outline
+        )
+    }
 }

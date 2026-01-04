@@ -102,7 +102,6 @@ import com.hazender.tropimonlauncher.game.account.AccountType
 import com.hazender.tropimonlauncher.game.account.AccountsManager
 import com.hazender.tropimonlauncher.game.account.auth_server.data.AuthServer
 import com.hazender.tropimonlauncher.game.account.auth_server.models.AuthResult
-import com.hazender.tropimonlauncher.game.account.getAccountTypeName
 import com.hazender.tropimonlauncher.game.account.isLocalAccount
 import com.hazender.tropimonlauncher.game.account.isMicrosoftAccount
 import com.hazender.tropimonlauncher.game.account.isSkinChangeAllowed
@@ -232,7 +231,7 @@ sealed interface OtherLoginOperation {
 @Composable
 fun AccountAvatar(
     modifier: Modifier = Modifier,
-    avatarSize: Int = 64,
+    avatarSize: Int = 80,
     account: Account?,
     refreshKey: Any? = null,
     onClick: () -> Unit = {}
@@ -269,15 +268,8 @@ fun AccountAvatar(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 text = account?.username ?: stringResource(R.string.account_add_new_account),
                 maxLines = 1,
-                style = MaterialTheme.typography.titleSmall
+                style = MaterialTheme.typography.titleMedium
             )
-            if (account != null) {
-                Text(
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                    text = getAccountTypeName(context, account),
-                    style = MaterialTheme.typography.labelSmall
-                )
-            }
         }
     }
 }
@@ -360,12 +352,8 @@ fun AccountItem(
                     .align(Alignment.CenterVertically)
                     .weight(1f)
             ) {
-                val context = LocalContext.current
+                // Affiche uniquement le nom d'utilisateur
                 Text(text = account.username)
-                Text(
-                    text = getAccountTypeName(context, account),
-                    style = MaterialTheme.typography.labelMedium
-                )
             }
             Row {
                 val isLocalHasSkin = account.isLocalAccount() && account.hasSkinFile

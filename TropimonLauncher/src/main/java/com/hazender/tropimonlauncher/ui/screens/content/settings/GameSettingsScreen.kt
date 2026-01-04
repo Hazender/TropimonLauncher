@@ -31,7 +31,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
 import com.hazender.tropimonlauncher.R
-import com.hazender.tropimonlauncher.game.multirt.RuntimesManager
 import com.hazender.tropimonlauncher.setting.AllSettings
 import com.hazender.tropimonlauncher.setting.unit.floatRange
 import com.hazender.tropimonlauncher.ui.base.BaseScreen
@@ -65,23 +64,9 @@ fun GameSettingsScreen(
                 ) {
                     SwitchSettingsLayout(
                         modifier = Modifier.fillMaxWidth(),
-                        unit = AllSettings.versionIsolation,
-                        title = stringResource(R.string.settings_game_version_isolation_title),
-                        summary = stringResource(R.string.settings_game_version_isolation_summary)
-                    )
-
-                    SwitchSettingsLayout(
-                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.skipGameIntegrityCheck,
                         title = stringResource(R.string.settings_game_skip_game_integrity_check_title),
                         summary = stringResource(R.string.settings_game_skip_game_integrity_check_summary)
-                    )
-
-                    TextInputSettingsLayout(
-                        modifier = Modifier.fillMaxWidth(),
-                        unit = AllSettings.versionCustomInfo,
-                        title = stringResource(R.string.settings_game_version_custom_info_title),
-                        summary = stringResource(R.string.settings_game_version_custom_info_summary)
                     )
                 }
             }
@@ -90,23 +75,6 @@ fun GameSettingsScreen(
                 SettingsBackground(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                 ) {
-                    ListSettingsLayout(
-                        modifier = Modifier.fillMaxWidth(),
-                        unit = AllSettings.javaRuntime,
-                        items = RuntimesManager.getRuntimes().filter { it.isCompatible() },
-                        title = stringResource(R.string.settings_game_java_runtime_title),
-                        summary = stringResource(R.string.settings_game_java_runtime_summary),
-                        getItemText = { it.name },
-                        getItemId = { it.name }
-                    )
-
-                    SwitchSettingsLayout(
-                        modifier = Modifier.fillMaxWidth(),
-                        unit = AllSettings.autoPickJavaRuntime,
-                        title = stringResource(R.string.settings_game_auto_pick_java_runtime_title),
-                        summary = stringResource(R.string.settings_game_auto_pick_java_runtime_summary)
-                    )
-
                     SliderSettingsLayout(
                         modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.ramAllocation,

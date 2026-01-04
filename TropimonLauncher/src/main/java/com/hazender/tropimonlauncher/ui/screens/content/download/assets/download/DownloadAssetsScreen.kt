@@ -40,7 +40,6 @@ import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.outlined.ImportContacts
 import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -57,11 +56,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -77,15 +74,11 @@ import com.hazender.tropimonlauncher.game.download.assets.platform.isAllNull
 import com.hazender.tropimonlauncher.game.download.assets.utils.ModTranslations
 import com.hazender.tropimonlauncher.game.download.assets.utils.getMcmodTitle
 import com.hazender.tropimonlauncher.game.download.assets.utils.getTranslations
-import com.hazender.tropimonlauncher.game.versioninfo.RELEASE_REGEX
 import com.hazender.tropimonlauncher.ui.base.BaseScreen
 import com.hazender.tropimonlauncher.ui.components.BackgroundCard
-import com.hazender.tropimonlauncher.ui.components.CheckChip
 import com.hazender.tropimonlauncher.ui.components.IconTextButton
 import com.hazender.tropimonlauncher.ui.components.ScalingLabel
 import com.hazender.tropimonlauncher.ui.components.ShimmerBox
-import com.hazender.tropimonlauncher.ui.components.SimpleTextInputField
-import com.hazender.tropimonlauncher.ui.components.backgroundLayoutColor
 import com.hazender.tropimonlauncher.ui.screens.NestedNavKey
 import com.hazender.tropimonlauncher.ui.screens.NormalNavKey
 import com.hazender.tropimonlauncher.ui.screens.content.download.assets.elements.AssetsIcon
@@ -122,26 +115,19 @@ private class DownloadScreenViewModel(
     /** 当前正在加载的依赖项目 */
     val loadingProjects = mutableStateListOf<String>()
 
-    var showOnlyMCRelease by mutableStateOf(true)
-    var searchMCVersion by mutableStateOf("")
-
-    fun filterWith(
-        showOnlyMCRelease: Boolean = this.showOnlyMCRelease,
-        searchMCVersion: String = this.searchMCVersion
-    ) {
-        this.showOnlyMCRelease = showOnlyMCRelease
-        this.searchMCVersion = searchMCVersion
-        viewModelScope.launch {
-            versionsLoading = DownloadAssetsVersionLoading.None
-            val infos = _versionsList.filterInfos()
-            versionsResult = DownloadAssetsState.Success(infos)
-        }
-    }
-
     private fun List<VersionInfoMap>.filterInfos(): List<VersionInfoMap> {
         return filter { info ->
-            (!showOnlyMCRelease || RELEASE_REGEX.matcher(info.gameVersion).find()) &&
-                    (searchMCVersion.isEmpty() || info.gameVersion.contains(searchMCVersion, true))
+            // Filtre Fabric uniquement - seulement pour les MODs, pas pour les resource/shader packs
+            val fabricMatch = if (classes == PlatformClasses.MOD) {
+                info.loader?.getDisplayName()?.equals("fabric", ignoreCase = true) ?: false
+            } else {
+                true // Pas de filtre Fabric pour resource packs et shader packs
+            }
+
+            // Filtre version MC actuelle - utilise la même logique que isAdapt
+            val currentMcVersionMatch = info.isAdapt
+
+            fabricMatch && currentMcVersionMatch
         }
     }
 
@@ -410,48 +396,6 @@ private fun Versions(
         }
         is DownloadAssetsState.Success -> {
             Column(modifier = modifier) {
-                //简单过滤条件
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    CheckChip(
-                        selected = viewModel.showOnlyMCRelease,
-                        onClick = {
-                            viewModel.filterWith(showOnlyMCRelease = viewModel.showOnlyMCRelease.not())
-                        },
-                        label = {
-                            Text(text = stringResource(R.string.download_assets_show_only_mc_release))
-                        },
-                    )
-
-                    SimpleTextInputField(
-                        modifier = Modifier.weight(1f),
-                        value = viewModel.searchMCVersion,
-                        onValueChange = { viewModel.filterWith(searchMCVersion = it) },
-                        color = backgroundLayoutColor(),
-                        contentColor = MaterialTheme.colorScheme.onSurface,
-                        singleLine = true,
-                        textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface).copy(fontSize = 12.sp),
-                        hint = {
-                            Text(
-                                text = stringResource(R.string.download_assets_search_mc_versions),
-                                style = TextStyle(color = MaterialTheme.colorScheme.onSurface).copy(fontSize = 12.sp)
-                            )
-                        }
-                    )
-                }
-
-                HorizontalDivider(
-                    modifier = Modifier
-                        .padding(horizontal = 12.dp)
-                        .fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
-                )
-
                 val scrollState = rememberLazyListState()
 
                 LaunchedEffect(Unit) {

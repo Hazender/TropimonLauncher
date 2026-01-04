@@ -9,7 +9,11 @@
 .externalNativeBuild
 .cxx
 local.properties
+.curseforge_api.txt
 .oauth_client_id.txt
 .store_password.txt
 .key_password.txt
-.curseforge_api.txt
+.r2_account_id.txt
+.r2_access_key.txt
+.r2_secret_key.txt
+/TropimonLauncher/tropimon_launcher.jks

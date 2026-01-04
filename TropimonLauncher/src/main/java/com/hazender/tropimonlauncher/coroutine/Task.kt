@@ -30,7 +30,7 @@ import java.util.UUID
 import kotlin.coroutines.cancellation.CancellationException
 
 class Task private constructor(
-    val id: String,
+    var id: String,
     val dispatcher: CoroutineDispatcher = Dispatchers.Default,
     val task: suspend CoroutineScope.(Task) -> Unit,
     val onError: suspend (Throwable) -> Unit = {},
@@ -46,10 +46,15 @@ class Task private constructor(
     var currentMessageArgs by mutableStateOf<Array<out Any>?>(null)
         private set
 
+    /**
+     * Suspend jusqu'à ce que la tâche soit terminée
+     */
     suspend fun await() {
         while (taskState != TaskState.COMPLETED && taskState != TaskState.CANCELLED) {
             delay(50)
         }
+
+        // Lever une exception si la tâche a été annulée
         if (taskState == TaskState.CANCELLED) {
             throw CancellationException("Task was cancelled")
         }

@@ -25,6 +25,9 @@ val defaultOAuthClientID = project.findProperty("oauth_client_id") as? String
 val defaultStorePassword = project.findProperty("default_store_password") as? String ?: error("The \"default_store_password\" property is not set in gradle.properties.")
 val defaultKeyPassword = project.findProperty("default_key_password") as? String ?: error("The \"default_key_password\" property is not set in gradle.properties.")
 val defaultCurseForgeApiKey = project.findProperty("curseforge_api_key") as? String
+val defaultR2AccountId = project.findProperty("r2_account_id") as? String
+val defaultR2AccessKey = project.findProperty("r2_access_key") as? String
+val defaultR2SecretKey = project.findProperty("r2_secret_key") as? String
 
 val generatedZalithDir = file("$buildDir/generated/source/tropimon/java")
 
@@ -41,7 +44,10 @@ fun getKeyFromLocal(envKey: String, fileName: String? = null, default: String? =
 
 configure<com.github.megatronking.stringfog.plugin.StringFogExtension> {
     implementation = "com.github.megatronking.stringfog.xor.StringFogImpl"
-    fogPackages = arrayOf("$zalithPackageName.info")
+    fogPackages = arrayOf(
+        "$zalithPackageName.info",
+        "$zalithPackageName.game.download.game.tropimon"
+    )
     kg = com.github.megatronking.stringfog.plugin.kg.RandomKeyGenerator()
     mode = com.github.megatronking.stringfog.plugin.StringFogMode.bytes
 }
@@ -58,7 +64,7 @@ android {
             keyPassword = getKeyFromLocal("KEY_PASSWORD", ".key_password.txt")
         }
         create("debugBuild") {
-            storeFile = file("zalith_launcher_debug.jks")
+            storeFile = file("tropimon_launcher_debug.jks")
             storePassword = defaultStorePassword
             keyAlias = "movtery_zalith_debug"
             keyPassword = defaultKeyPassword
@@ -150,6 +156,26 @@ android {
             useLegacyPackaging = true
             pickFirsts += listOf("**/libbytehook.so")
         }
+        resources {
+            excludes += setOf(
+                "META-INF/INDEX.LIST",
+                "META-INF/io.netty.versions.properties",
+                "META-INF/DEPENDENCIES",
+                "META-INF/LICENSE",
+                "META-INF/LICENSE.txt",
+                "META-INF/NOTICE",
+                "META-INF/NOTICE.txt",
+                "META-INF/AL2.0",
+                "META-INF/LGPL2.1",
+                // fichiers AWS inutiles
+                "codegen-resources/**",
+                "service-2.json",
+                "paginators-1.json",
+                "waiters-2.json",
+                "examples-1.json",
+                "customization.config"
+            )
+        }
     }
 
     compileOptions {
@@ -200,7 +226,10 @@ tasks.register("generateInfoDistributor") {
             "\"$launcherName\"".toStatement(variable = "LAUNCHER_IDENTIFIER"),
             "\"$launcherShortName\"".toStatement(variable = "LAUNCHER_SHORT_NAME"),
             "\"$launcherUrl\"".toStatement(variable = "URL_HOME"),
-            "\"${getKeyFromLocal("CURSEFORGE_API_KEY", ".curseforge_api.txt", defaultCurseForgeApiKey)}\"".toStatement(variable = "CURSEFORGE_API")
+            "\"${getKeyFromLocal("CURSEFORGE_API_KEY", ".curseforge_api.txt", defaultCurseForgeApiKey)}\"".toStatement(variable = "CURSEFORGE_API"),
+            "\"${getKeyFromLocal("R2_ACCOUNT_ID", ".r2_account_id.txt", defaultR2AccountId)}\"".toStatement(variable = "R2_ACCOUNT_ID"),
+            "\"${getKeyFromLocal("R2_ACCESS_KEY", ".r2_access_key.txt", defaultR2AccessKey)}\"".toStatement(variable = "R2_ACCESS_KEY"),
+            "\"${getKeyFromLocal("R2_SECRET_KEY", ".r2_secret_key.txt", defaultR2SecretKey)}\"".toStatement(variable = "R2_SECRET_KEY")
         )
         generateJavaClass(generatedZalithDir, "$zalithPackageName.info", "InfoDistributor", constantList)
     }
@@ -261,6 +290,7 @@ dependencies {
     implementation(libs.mmkv)
     implementation(libs.fishnet)
     implementation(libs.process.phoenix)
+    implementation(libs.aws.android.sdk.s3)
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     //Safe
     implementation(libs.stringfog.xor)

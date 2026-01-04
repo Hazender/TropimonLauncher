@@ -65,12 +65,25 @@ fun downloadSingleForVersions(
         file = cacheFile,
         onDownloaded = { task ->
             task.updateProgress(-1f, R.string.download_assets_install_progress_installing, version.platformFileName())
+
+            // Nom du fichier final (avec ou sans LOCAL- selon le dossier)
+            val finalFileName = if (folder == "mods") {
+                "LOCAL-${version.platformFileName()}"
+            } else {
+                version.platformFileName()
+            }
+
             versions.forEach { ver ->
-                val targetFolder = File(ver.getGameDir(), folder)
-                val targetFile = File(targetFolder, version.platformFileName())
-                if (targetFile.exists() && !targetFile.delete()) throw IOException("Failed to properly delete the existing target file.")
-                cacheFile.copyTo(targetFile)
-                onFileCopied(targetFile, targetFolder) //文件已复制回调
+                val targetFolder = File(ver.getGameDir(), folder).apply { mkdirs() }
+                val targetFile = File(targetFolder, finalFileName)
+
+                // Supprime l'ancien fichier s'il existe (même avec/sans LOCAL-)
+                if (targetFile.exists() && !targetFile.delete()) {
+                    throw IOException("Failed to delete existing file: ${targetFile.path}")
+                }
+                // Copie avec le bon nom
+                cacheFile.copyTo(targetFile, overwrite = true)
+                onFileCopied(targetFile, targetFolder)
             }
         },
         onError = { e ->
@@ -92,11 +105,12 @@ fun downloadSingleForVersions(
         },
         onCancel = {
             FileUtils.deleteQuietly(cacheFile)
+            val finalFileName = if (folder == "mods") "LOCAL-${version.platformFileName()}" else version.platformFileName()
             versions.forEach { ver ->
                 val targetFolder = File(ver.getGameDir(), folder)
-                val targetFile = File(targetFolder, version.platformFileName())
+                val targetFile = File(targetFolder, finalFileName)
                 if (targetFile.exists()) FileUtils.deleteQuietly(targetFile)
-                onFileCancelled(targetFile, targetFolder) //文件已取消回调
+                onFileCancelled(targetFile, targetFolder)
             }
         },
         onFinally = {

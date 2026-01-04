@@ -115,7 +115,8 @@ fun GameMenuSubscreen(
                 SecondaryScrollableTabRow(
                     selectedTabIndex = controlMenuTabIndex,
                     edgePadding = 0.dp,
-                    minTabWidth = 58.dp
+                    minTabWidth = 58.dp,
+                    containerColor = MaterialTheme.colorScheme.surfaceBright,
                 ) {
                     controlTabs.forEachIndexed { index, iconTab ->
                         Tab(

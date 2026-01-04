@@ -61,16 +61,12 @@ import coil3.request.ImageRequest
 import com.hazender.tropimonlauncher.BuildConfig
 import com.hazender.tropimonlauncher.R
 import com.hazender.tropimonlauncher.game.plugin.ApkPlugin
-import com.hazender.tropimonlauncher.game.plugin.PluginLoader
 import com.hazender.tropimonlauncher.game.plugin.appCacheIcon
 import com.hazender.tropimonlauncher.info.InfoDistributor
 import com.hazender.tropimonlauncher.library.LibraryInfo
 import com.hazender.tropimonlauncher.library.libraryData
-import com.hazender.tropimonlauncher.path.URL_COMMUNITY
-import com.hazender.tropimonlauncher.path.URL_MCMOD
 import com.hazender.tropimonlauncher.path.URL_PROJECT
 import com.hazender.tropimonlauncher.path.URL_SUPPORT
-import com.hazender.tropimonlauncher.path.URL_WEBLATE
 import com.hazender.tropimonlauncher.ui.base.BaseScreen
 import com.hazender.tropimonlauncher.ui.components.AnimatedLazyColumn
 import com.hazender.tropimonlauncher.ui.components.CardTitleLayout
@@ -104,7 +100,7 @@ fun AboutInfoScreen(
                 ) {
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         ButtonIconItem(
-                            icon = painterResource(R.drawable.img_launcher),
+                            icon = painterResource(R.drawable.sealcircle),
                             title = InfoDistributor.LAUNCHER_NAME,
                             text = stringResource(R.string.about_launcher_version, BuildConfig.VERSION_NAME),
                             buttonText = stringResource(R.string.about_launcher_project_link),
@@ -112,11 +108,11 @@ fun AboutInfoScreen(
                         )
 
                         ButtonIconItem(
-                            icon = painterResource(R.drawable.img_movtery),
-                            title = stringResource(R.string.about_launcher_author_movtery_title),
-                            text = stringResource(R.string.about_launcher_author_movtery_text, InfoDistributor.LAUNCHER_NAME),
-                            buttonText = stringResource(R.string.about_sponsor),
-                            onButtonClick = { openLink(URL_SUPPORT) }
+                            icon = painterResource(R.drawable.img_hazender),
+                            title = stringResource(R.string.about_launcher_author_hazender_title),
+                            text = stringResource(R.string.about_launcher_author_hazender_text, InfoDistributor.LAUNCHER_NAME),
+                            buttonText = "E-mail",
+                            onButtonClick = { openLink("mailto:hazender@gmail.com") }
                         )
                     }
                 }
@@ -129,57 +125,11 @@ fun AboutInfoScreen(
                 ) {
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         ButtonIconItem(
-                            icon = painterResource(R.drawable.img_bangbang93),
-                            title = "bangbang93",
-                            text = stringResource(R.string.about_acknowledgements_bangbang93_text, InfoDistributor.LAUNCHER_SHORT_NAME),
+                            icon = painterResource(R.drawable.img_movtery),
+                            title = stringResource(R.string.about_launcher_author_movtery_title),
+                            text = stringResource(R.string.about_launcher_author_movtery_text, InfoDistributor.LAUNCHER_NAME),
                             buttonText = stringResource(R.string.about_sponsor),
-                            onButtonClick = { openLink("https://afdian.com/a/bangbang93") }
-                        )
-                        LinkIconItem(
-                            icon = painterResource(R.drawable.img_launcher_fcl),
-                            title = "Fold Craft Launcher",
-                            text = stringResource(R.string.about_acknowledgements_fcl_text, InfoDistributor.LAUNCHER_SHORT_NAME),
-                            openLicense = { openLicense(R.raw.fcl_license) },
-                            openLink = { openLink("https://github.com/FCL-Team/FoldCraftLauncher") }
-                        )
-                        LinkIconItem(
-                            icon = painterResource(R.drawable.img_launcher_hmcl),
-                            title = "Hello Minecraft! Launcher",
-                            text = stringResource(R.string.about_acknowledgements_hmcl_text, InfoDistributor.LAUNCHER_SHORT_NAME),
-                            openLicense = { openLicense(R.raw.hmcl_license) },
-                            openLink = { openLink("https://github.com/HMCL-dev/HMCL") }
-                        )
-                        LinkIconItem(
-                            icon = painterResource(R.drawable.img_platform_mcmod),
-                            title = stringResource(R.string.about_acknowledgements_mcmod),
-                            text = stringResource(R.string.about_acknowledgements_mcmod_text, InfoDistributor.LAUNCHER_SHORT_NAME),
-                            openLink = { openLink(URL_MCMOD) }
-                        )
-                        LinkIconItem(
-                            icon = painterResource(R.drawable.img_launcher_pcl2),
-                            title = "Plain Craft Launcher 2",
-                            text = stringResource(R.string.about_acknowledgements_pcl_text, InfoDistributor.LAUNCHER_SHORT_NAME),
-                            openLink = { openLink("https://github.com/Meloong-Git/PCL") }
-                        )
-                        LinkIconItem(
-                            icon = painterResource(R.drawable.img_launcher_pojav),
-                            title = "PojavLauncher",
-                            text = stringResource(R.string.about_acknowledgements_pojav_text, InfoDistributor.LAUNCHER_SHORT_NAME),
-                            openLicense = { openLicense(R.raw.lgpl_3_license) },
-                            openLink = { openLink("https://github.com/PojavLauncherTeam/PojavLauncher") }
-                        )
-                        LinkIconItem(
-                            icon = painterResource(R.drawable.ic_github),
-                            title = stringResource(R.string.about_acknowledgements_github_community),
-                            text = stringResource(R.string.about_acknowledgements_github_community_text),
-                            openLink = { openLink(URL_COMMUNITY) },
-                            useImage = false
-                        )
-                        LinkIconItem(
-                            icon = painterResource(R.drawable.img_weblate),
-                            title = stringResource(R.string.about_acknowledgements_weblate_community),
-                            text = stringResource(R.string.about_acknowledgements_weblate_community_text),
-                            openLink = { openLink(URL_WEBLATE) }
+                            onButtonClick = { openLink(URL_SUPPORT) }
                         )
                     }
                 }
@@ -194,22 +144,6 @@ fun AboutInfoScreen(
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         libraryData.forEach { info ->
                             LibraryInfoItem(info = info, openLicense = openLicense, openLink = openLink)
-                        }
-                    }
-                }
-            }
-
-            //已加载插件板块
-            PluginLoader.allPlugins.takeIf { it.isNotEmpty() }?.let { allPlugins ->
-                animatedItem(scope) { yOffset ->
-                    ChunkLayout(
-                        modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
-                        title = stringResource(R.string.about_plugin_title)
-                    ) {
-                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                            allPlugins.forEach { apkPlugin ->
-                                PluginInfoItem(apkPlugin = apkPlugin)
-                            }
                         }
                     }
                 }

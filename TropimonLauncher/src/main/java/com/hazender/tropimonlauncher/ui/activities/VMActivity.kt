@@ -334,11 +334,23 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
                         modifier = Modifier
                             .fillMaxSize()
                             .absoluteOffset {
-                                val area = inputArea ?: return@absoluteOffset IntOffset.Zero
                                 val imeHeight = imeInsets.getBottom(this@absoluteOffset)
-                                val bottomDistance = CallbackBridge.windowHeight - area.bottom
-                                val bottomPadding = (imeHeight - bottomDistance).coerceAtLeast(0)
-                                IntOffset(0, -bottomPadding)
+
+                                val offset = if (inputArea != null) {
+                                    // Comportement existant : centrer sur inputArea
+                                    val area = inputArea!!
+                                    val bottomDistance = CallbackBridge.windowHeight - area.bottom
+                                    val bottomPadding = (imeHeight - bottomDistance).coerceAtLeast(0)
+                                    -bottomPadding
+                                } else if (imeHeight > 0) {
+                                    // Nouveau comportement : déplacer au-dessus du clavier
+                                    -imeHeight
+                                } else {
+                                    // Pas de clavier
+                                    0
+                                }
+
+                                IntOffset(0, offset)
                             }
                             .absoluteOffset(x = 0.dp, y = surfaceOffset.y.dp),
                         factory = { context ->

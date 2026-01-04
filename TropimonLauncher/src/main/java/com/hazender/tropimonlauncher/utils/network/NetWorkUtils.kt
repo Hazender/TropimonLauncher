@@ -95,8 +95,8 @@ fun downloadFileWithHttp(
             val conn = URL(url).openConnection() as HttpURLConnection
 
             conn.apply {
-                readTimeout = TIME_OUT.first
-                connectTimeout = TIME_OUT.first
+                readTimeout = TIME_OUT.first *2
+                connectTimeout = TIME_OUT.first *2
                 useCaches = true
                 setRequestProperty("User-Agent", "Mozilla/5.0/$URL_USER_AGENT")
             }

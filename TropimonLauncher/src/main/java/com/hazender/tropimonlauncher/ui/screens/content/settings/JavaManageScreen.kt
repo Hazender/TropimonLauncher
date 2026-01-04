@@ -75,7 +75,6 @@ import com.hazender.tropimonlauncher.ui.components.SimpleAlertDialog
 import com.hazender.tropimonlauncher.ui.components.itemLayoutColor
 import com.hazender.tropimonlauncher.ui.components.itemLayoutShadowElevation
 import com.hazender.tropimonlauncher.ui.screens.NestedNavKey
-import com.hazender.tropimonlauncher.ui.screens.NormalNavKey
 import com.hazender.tropimonlauncher.ui.screens.content.elements.ImportFileButton
 import com.hazender.tropimonlauncher.ui.screens.content.settings.layouts.SettingsBackground
 import com.hazender.tropimonlauncher.utils.animation.getAnimateTween
@@ -103,7 +102,6 @@ fun JavaManageScreen(
 
     BaseScreen(
         Triple(key, mainScreenKey, false),
-        Triple(NormalNavKey.Settings.JavaManager, settingsScreenKey, false)
     ) { isVisible ->
         val yOffset by swapAnimateDpAsState(
             targetValue = (-40).dp,

@@ -97,7 +97,7 @@ fun VersionOverViewScreen(
         levels1 = listOf(
             Pair(NestedNavKey.VersionSettings::class.java, mainScreenKey)
         ),
-        Triple(NormalNavKey.Versions.OverView, versionsScreenKey, false)
+        Triple(NormalNavKey.Versions.ModsManager, versionsScreenKey, false)
     ) { isVisible ->
         var versionSummary by remember { mutableStateOf(version.getVersionSummary()) }
         var refreshVersionIcon by remember { mutableIntStateOf(0) }

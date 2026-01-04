@@ -93,7 +93,7 @@ fun VersionConfigScreen(
         levels1 = listOf(
             Pair(NestedNavKey.VersionSettings::class.java, mainScreenKey)
         ),
-        Triple(NormalNavKey.Versions.Config, versionsScreenKey, false)
+        Triple(NormalNavKey.Versions.ModsManager, versionsScreenKey, false)
     ) { isVisible ->
         val config = version.getVersionConfig()
 

@@ -43,7 +43,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.PlayArrow
@@ -97,7 +96,6 @@ import com.hazender.tropimonlauncher.ui.base.BaseScreen
 import com.hazender.tropimonlauncher.ui.components.CardTitleLayout
 import com.hazender.tropimonlauncher.ui.components.ContentCheckBox
 import com.hazender.tropimonlauncher.ui.components.EdgeDirection
-import com.hazender.tropimonlauncher.ui.components.IconTextButton
 import com.hazender.tropimonlauncher.ui.components.LittleTextLabel
 import com.hazender.tropimonlauncher.ui.components.ProgressDialog
 import com.hazender.tropimonlauncher.ui.components.ScalingLabel
@@ -218,7 +216,6 @@ fun SavesManagerScreen(
     launchGameViewModel: LaunchGameViewModel,
     version: Version,
     backToMainScreen: () -> Unit,
-    swapToDownload: () -> Unit,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     if (!version.isValid()) {
@@ -297,7 +294,6 @@ fun SavesManagerScreen(
                             savesFilter = viewModel.savesFilter,
                             onSavesFilterChange = { viewModel.updateFilter(it) },
                             savesDir = savesDir,
-                            swapToDownload = swapToDownload,
                             refreshSaves = { viewModel.refresh() },
                             submitError = submitError
                         )
@@ -329,7 +325,6 @@ private fun SavesActionsHeader(
     savesFilter: SavesFilter,
     onSavesFilterChange: (SavesFilter) -> Unit,
     savesDir: File,
-    swapToDownload: () -> Unit,
     refreshSaves: () -> Unit,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit,
     inputFieldColor: Color = itemLayoutColor(),
@@ -399,12 +394,6 @@ private fun SavesActionsHeader(
                         },
                         onImported = refreshSaves,
                         submitError = submitError
-                    )
-
-                    IconTextButton(
-                        onClick = swapToDownload,
-                        imageVector = Icons.Default.Download,
-                        text = stringResource(R.string.generic_download)
                     )
 
                     IconButton(

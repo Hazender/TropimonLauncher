@@ -65,10 +65,10 @@ val inverseOnSurface = Color(0xFF1C1C1C)
 val inversePrimary = Color(0xFF006A66)
 
 // 9. Conteneurs de Surface (Nuances de gris foncé)
-val surfaceDim = Color(0xFF121212)
-val surfaceBright = Color(0xFF383838)
+val surfaceDim = Color(0xFF0F0F0F)
+val surfaceBright = Color(0xFF0F0F0F)
 val surfaceContainerLowest = Color(0xFF0F0F0F)
 val surfaceContainerLow = Color(0xFF1A1A1A)
-val surfaceContainer = Color(0xFF202020) // Identique à surface
+val surfaceContainer = Color(0xFF0F0F0F) // Identique à surface
 val surfaceContainerHigh = Color(0xFF282828)
 val surfaceContainerHighest = Color(0xFF333333)

@@ -441,6 +441,10 @@ fun ModsManagerScreen(
         val viewModel = rememberModsManageViewModel(version, modsDir)
         val updaterViewModel = rememberModsUpdaterViewModel(version, modsDir)
 
+        LaunchedEffect(Unit) {
+            viewModel.refresh(context)
+        }
+
         DeleteAllOperation(
             operation = viewModel.deleteAllOperation,
             changeOperation = { viewModel.deleteAllOperation = it },
@@ -839,6 +843,7 @@ private fun ModItemLayout(
         onLoad()
     }
 
+    val isProtectedMod = !mod.localMod.file.name.startsWith("LOCAL-", ignoreCase = true)
     Surface(
         modifier = modifier
             .graphicsLayer(scaleY = scale.value, scaleX = scale.value)
@@ -848,6 +853,7 @@ private fun ModItemLayout(
                 shape = shape
             ),
         onClick = onClick,
+        enabled = !isProtectedMod,
         shape = shape,
         color = itemColor,
         contentColor = itemContentColor,
@@ -973,24 +979,30 @@ private fun ModItemLayout(
                         )
                     }
                 }
-
-                //启用/禁用
+                val isManualMod = !mod.localMod.file.name.startsWith("LOCAL-", ignoreCase = true)
                 Checkbox(
                     checked = mod.localMod.file.isEnabled(),
+                    enabled = !isManualMod,  // Désactive la case seulement si c'est un mod manuel
                     onCheckedChange = { checked ->
-                        if (checked) onEnable()
-                        else onDisable()
+                        if (!isManualMod) {  // Sécurité supplémentaire
+                            if (checked) onEnable()
+                            else onDisable()
+                        }
                     }
                 )
 
                 //详细信息展示
                 if (projectInfo == null) {
                     if (!mod.localMod.notMod) {
-                        LocalModInfoTooltip(mod.localMod)
+                        LocalModInfoTooltip(
+                            mod = mod.localMod,
+                            enabled = !isManualMod  // Désactive si pas LOCAL-
+                        )
                     }
                 } else {
                     IconButton(
                         modifier = Modifier.size(38.dp),
+                        enabled = !isManualMod,
                         onClick = {
                             onSwapMoreInfo(projectInfo.id, projectInfo.platform)
                         }
@@ -1004,11 +1016,13 @@ private fun ModItemLayout(
 
                 IconButton(
                     modifier = Modifier.size(38.dp),
+                    enabled = !isManualMod,  // Désactive le bouton si mod manuel
                     onClick = onDelete
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.Delete,
-                        contentDescription = stringResource(R.string.generic_delete)
+                        contentDescription = stringResource(R.string.generic_delete),
+                        tint = if (isManualMod) LocalContentColor.current.copy(alpha = 0.38f) else LocalContentColor.current
                     )
                 }
             }
@@ -1073,50 +1087,54 @@ private fun ModIcon(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun LocalModInfoTooltip(
-    mod: LocalMod
+    mod: LocalMod,
+    enabled: Boolean = true
 ) {
     TooltipIconButton(
         modifier = Modifier.size(38.dp),
+        enabled = enabled,
         tooltip = {
-            RichTooltip(
-                modifier = Modifier.padding(all = 3.dp),
-                title = { Text(text = stringResource(R.string.mods_manage_info)) },
-                shadowElevation = 3.dp
-            ) {
-                Column(
-                    modifier = Modifier
-                        .verticalScroll(rememberScrollState())
+            if (enabled) {
+                RichTooltip(
+                    modifier = Modifier.padding(all = 3.dp),
+                    title = { Text(text = stringResource(R.string.mods_manage_info)) },
+                    shadowElevation = 3.dp
                 ) {
-                    //文件大小
-                    Text(text = stringResource(R.string.generic_file_size, formatFileSize(mod.fileSize)))
-                    //模组版本
-                    mod.version?.let { version ->
-                        Text(text = stringResource(R.string.mods_manage_version, version))
-                    }
-                    //作者
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    Column(
+                        modifier = Modifier
+                            .verticalScroll(rememberScrollState())
                     ) {
-                        Text(text = stringResource(R.string.mods_manage_authors))
-                        FlowRow(
-                            modifier = Modifier.weight(1f, fill = false),
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            mod.authors.forEach { author ->
-                                Text(text = author)
-                            }
+                        //文件大小
+                        Text(text = stringResource(R.string.generic_file_size, formatFileSize(mod.fileSize)))
+                        //模组版本
+                        mod.version?.let { version ->
+                            Text(text = stringResource(R.string.mods_manage_version, version))
                         }
-                    }
-                    //模组描述
-                    mod.description?.takeIf { it.isNotEmptyOrBlank() }?.let { description ->
+                        //作者
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
-                            Text(text = stringResource(R.string.mods_manage_description))
-                            Text(
+                            Text(text = stringResource(R.string.mods_manage_authors))
+                            FlowRow(
                                 modifier = Modifier.weight(1f, fill = false),
-                                text = description
-                            )
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                mod.authors.forEach { author ->
+                                    Text(text = author)
+                                }
+                            }
+                        }
+                        //模组描述
+                        mod.description?.takeIf { it.isNotEmptyOrBlank() }?.let { description ->
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Text(text = stringResource(R.string.mods_manage_description))
+                                Text(
+                                    modifier = Modifier.weight(1f, fill = false),
+                                    text = description
+                                )
+                            }
                         }
                     }
                 }
@@ -1125,7 +1143,9 @@ private fun LocalModInfoTooltip(
     ) {
         Icon(
             imageVector = Icons.Outlined.Info,
-            contentDescription = stringResource(R.string.mods_manage_info)
+            contentDescription = stringResource(R.string.mods_manage_info),
+            tint = if (enabled) LocalContentColor.current
+            else LocalContentColor.current.copy(alpha = 0.38f) // Gris si désactivé
         )
     }
 }

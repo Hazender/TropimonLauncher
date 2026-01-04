@@ -20,11 +20,6 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
     <uses-feature android:name="android.hardware.microphone" android:required="false" />
 
-    <!--
-    NOTE IMPORTANTE : Toutes les permissions de stockage dangereuses ont été supprimées.
-    L'application utilisera son stockage interne spécifique, qui ne nécessite aucune permission.
-    -->
-
     <application
         android:name="TLApplication"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -33,7 +28,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="${launcher_name}"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:theme="@style/AppTheme.ZalithLauncher"
+        android:theme="@style/AppTheme.TropimonLauncher"
         android:appCategory="game"
         android:process=":launcher"
         android:supportsRtl="true"
@@ -44,8 +39,6 @@
         android:allowNativeHeapPointerTagging="false"
         tools:targetApi="31"
         tools:ignore="DiscouragedApi">
-        <!-- L'attribut 'requestLegacyExternalStorage' a été supprimé car il est obsolète et contradictoire. -->
-
         <activity
             android:name=".ui.activities.SplashActivity"
             android:theme="@style/AppTheme.SplashScreen"
@@ -58,8 +51,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <!-- ... autres activités ... -->
         <activity
             android:name=".ui.activities.MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|keyboard|navigation"
@@ -87,14 +78,6 @@
             android:enabled="true"
             android:foregroundServiceType="dataSync|microphone"
             android:process=":jvm" />
-
-        <!--
-        CORRECTION : Ce 'Provider' est ESSENTIEL pour l'import/export.
-        Il permet à d'autres applications (comme les explorateurs de fichiers)
-        d'interagir avec le dossier de jeu de votre application de manière sécurisée,
-        via le Storage Access Framework, sans nécessiter de permission de stockage.
-        L'attribut 'exported' doit être 'true' pour que cela fonctionne.
-        -->
         <provider
             android:name=".provider.FolderProvider"
             android:authorities="${packageName}.document.provider"
@@ -105,12 +88,6 @@
                 <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
             </intent-filter>
         </provider>
-
-        <!--
-        Ce 'FileProvider' est utilisé pour partager des fichiers spécifiques
-        de manière sécurisée (par exemple, un fichier de log pour un rapport de bug).
-        Il doit rester non exporté.
-        -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${packageName}.provider"

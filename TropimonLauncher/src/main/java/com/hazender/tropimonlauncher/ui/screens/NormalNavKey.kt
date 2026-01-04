@@ -56,8 +56,6 @@ sealed interface NormalNavKey : NavKey {
         @Serializable data object Gamepad : Settings
         /** 启动器设置屏幕 */
         @Serializable data object Launcher : Settings
-        /** Java管理屏幕 */
-        @Serializable data object JavaManager : Settings
         /** 控制管理屏幕 */
         @Serializable data object ControlManager : Settings
         /** 关于屏幕 */
@@ -66,10 +64,6 @@ sealed interface NormalNavKey : NavKey {
 
     /** 版本详细设置嵌套子屏幕 */
     sealed interface Versions : NormalNavKey {
-        /** 版本概览屏幕 */
-        @Serializable data object OverView : Versions
-        /** 版本配置屏幕 */
-        @Serializable data object Config : Versions
         /** 模组管理屏幕 */
         @Serializable data object ModsManager : Versions
         /** 存档管理屏幕 */

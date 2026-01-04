@@ -22,12 +22,15 @@ import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.RestartAlt
@@ -39,6 +42,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
@@ -49,17 +53,18 @@ import com.hazender.tropimonlauncher.coroutine.Task
 import com.hazender.tropimonlauncher.coroutine.TaskSystem
 import com.hazender.tropimonlauncher.path.PathManager
 import com.hazender.tropimonlauncher.setting.AllSettings
-import com.hazender.tropimonlauncher.setting.enums.MirrorSourceType
 import com.hazender.tropimonlauncher.setting.unit.floatRange
 import com.hazender.tropimonlauncher.ui.base.BaseScreen
 import com.hazender.tropimonlauncher.ui.components.AnimatedColumn
 import com.hazender.tropimonlauncher.ui.components.IconTextButton
 import com.hazender.tropimonlauncher.ui.components.SimpleAlertDialog
+import com.hazender.tropimonlauncher.ui.components.TitleAndSummary
 import com.hazender.tropimonlauncher.ui.screens.NestedNavKey
 import com.hazender.tropimonlauncher.ui.screens.NormalNavKey
+import com.hazender.tropimonlauncher.ui.screens.content.elements.MicrophoneCheckOperation
+import com.hazender.tropimonlauncher.ui.screens.content.elements.MicrophoneCheckState
 import com.hazender.tropimonlauncher.ui.screens.content.settings.layouts.SettingsBackground
 import com.hazender.tropimonlauncher.ui.screens.content.settings.layouts.SettingsLayoutScope
-import com.hazender.tropimonlauncher.utils.animation.TransitionAnimationType
 import com.hazender.tropimonlauncher.utils.file.shareFile
 import com.hazender.tropimonlauncher.utils.logging.Logger
 import com.hazender.tropimonlauncher.utils.logging.Logger.lError
@@ -67,7 +72,6 @@ import com.hazender.tropimonlauncher.utils.string.getMessageOrToString
 import com.hazender.tropimonlauncher.viewmodel.BackgroundViewModel
 import com.hazender.tropimonlauncher.viewmodel.ErrorViewModel
 import com.hazender.tropimonlauncher.viewmodel.EventViewModel
-import com.hazender.tropimonlauncher.viewmodel.LocalBackgroundViewModel
 import kotlinx.coroutines.Dispatchers
 import java.io.File
 
@@ -96,9 +100,6 @@ fun LauncherSettingsScreen(
                 SettingsBackground(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                 ) {
-                    // --- MODIFICATION START ---
-                    // Les options pour le thème et le mode sombre ont été retirées.
-
                     SwitchSettingsLayout(
                         modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.launcherFullScreen,
@@ -108,72 +109,6 @@ fun LauncherSettingsScreen(
                             eventViewModel.sendEvent(EventViewModel.Event.RefreshFullScreen)
                         }
                     )
-                    // --- MODIFICATION END ---
-                }
-            }
-
-            //启动器背景设置板块
-            LocalBackgroundViewModel.current?.let { backgroundViewModel ->
-                AnimatedItem(scope) { yOffset ->
-                    SettingsBackground(
-                        modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
-                    ) {
-                        CustomBackground(
-                            modifier = Modifier.fillMaxWidth(),
-                            backgroundViewModel = backgroundViewModel,
-                            submitError = submitError
-                        )
-
-                        SliderSettingsLayout(
-                            modifier = Modifier.fillMaxWidth(),
-                            unit = AllSettings.launcherBackgroundOpacity,
-                            title = stringResource(R.string.settings_launcher_background_opacity_title),
-                            summary = stringResource(R.string.settings_launcher_background_opacity_summary),
-                            valueRange = AllSettings.launcherBackgroundOpacity.floatRange,
-                            suffix = "%",
-                            enabled = backgroundViewModel.isValid,
-                            fineTuningControl = true
-                        )
-                    }
-                }
-            }
-
-            //动画设置板块
-            AnimatedItem(scope) { yOffset ->
-                SettingsBackground(
-                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
-                ) {
-                    SliderSettingsLayout(
-                        modifier = Modifier.fillMaxWidth(),
-                        unit = AllSettings.launcherAnimateSpeed,
-                        title = stringResource(R.string.settings_launcher_animate_speed_title),
-                        summary = stringResource(R.string.settings_launcher_animate_speed_summary),
-                        valueRange = AllSettings.launcherAnimateSpeed.floatRange,
-                        steps = 9,
-                        suffix = "x"
-                    )
-
-                    SliderSettingsLayout(
-                        modifier = Modifier.fillMaxWidth(),
-                        unit = AllSettings.launcherAnimateExtent,
-                        title = stringResource(R.string.settings_launcher_animate_extent_title),
-                        summary = stringResource(R.string.settings_launcher_animate_extent_summary),
-                        valueRange = AllSettings.launcherAnimateExtent.floatRange,
-                        steps = 9,
-                        suffix = "x"
-                    )
-
-                    EnumSettingsLayout(
-                        modifier = Modifier.fillMaxWidth(),
-                        unit = AllSettings.launcherSwapAnimateType,
-                        title = stringResource(R.string.settings_launcher_swap_animate_type_title),
-                        summary = stringResource(R.string.settings_launcher_swap_animate_type_summary),
-                        entries = TransitionAnimationType.entries,
-                        getRadioEnable = { true },
-                        getRadioText = { enum ->
-                            stringResource(enum.textRes)
-                        }
-                    )
                 }
             }
 
@@ -181,22 +116,6 @@ fun LauncherSettingsScreen(
                 SettingsBackground(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                 ) {
-                    ListSettingsLayout(
-                        modifier = Modifier.fillMaxWidth(),
-                        unit = AllSettings.fetchModLoaderSource,
-                        items = MirrorSourceType.entries,
-                        title = stringResource(R.string.settings_launcher_mirror_modloader_title),
-                        getItemText = { stringResource(it.textRes) }
-                    )
-
-                    ListSettingsLayout(
-                        modifier = Modifier.fillMaxWidth(),
-                        unit = AllSettings.fileDownloadSource,
-                        items = MirrorSourceType.entries,
-                        title = stringResource(R.string.settings_launcher_mirror_file_download_title),
-                        getItemText = { stringResource(it.textRes) }
-                    )
-
                     SliderSettingsLayout(
                         modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.launcherLogRetentionDays,
@@ -234,11 +153,45 @@ fun LauncherSettingsScreen(
                     )
                 }
             }
+            AnimatedItem(scope) { yOffset ->
+                SettingsBackground(
+                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
+                ) {
+                    CheckMicrophoneLayout(
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
         }
     }
 }
 
-// ... le reste du fichier reste inchangé
+@Composable
+private fun CheckMicrophoneLayout(
+    modifier: Modifier = Modifier
+) {
+    var state by remember { mutableStateOf<MicrophoneCheckState>(MicrophoneCheckState.None) }
+
+    MicrophoneCheckOperation(
+        state = state,
+        changeState = { state = it }
+    )
+
+    Column(
+        modifier = modifier
+            .clip(shape = RoundedCornerShape(22.0.dp))
+            .clickable {
+                state = MicrophoneCheckState.Start
+            }
+            .padding(all = 8.dp)
+            .padding(bottom = 4.dp)
+    ) {
+        TitleAndSummary(
+            title = stringResource(R.string.versions_config_microphone_check_title),
+            summary = stringResource(R.string.versions_config_microphone_check_summary)
+        )
+    }
+}
 
 private sealed interface BackgroundOperation {
     data object None : BackgroundOperation

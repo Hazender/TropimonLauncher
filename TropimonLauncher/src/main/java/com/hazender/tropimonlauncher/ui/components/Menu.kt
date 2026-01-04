@@ -49,6 +49,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDropDown
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -183,7 +184,10 @@ fun MenuSubscreen(
                         modifier = Modifier
                             .fillMaxSize()
                             .alpha(animationProgress.value),
-                        content = content
+                        content = content,
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface
+                        )
                     )
                 }
             }
@@ -281,7 +285,10 @@ fun DualMenuSubscreen(
                                 MenuTitleLayout(titleLayout, titleHeight)
                             }
                             leftMenuContent()
-                        }
+                        },
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface
+                        )
                     )
                 }
             }
@@ -309,7 +316,10 @@ fun DualMenuSubscreen(
                                 MenuTitleLayout(titleLayout, titleHeight)
                             }
                             rightMenuContent()
-                        }
+                        },
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface
+                        )
                     )
                 }
             }
@@ -326,7 +336,7 @@ private fun MenuTitleLayout(
         modifier = Modifier
             .height(height)
             .fillMaxWidth(),
-        color = MaterialTheme.colorScheme.surface,
+        color = MaterialTheme.colorScheme.surfaceBright,
         contentColor = MaterialTheme.colorScheme.onSurface
     ) {
         Box(
@@ -345,7 +355,7 @@ fun MenuTextButton(
     enabled: Boolean = true,
     influencedByBackground: Boolean = false,
     shape: Shape = MaterialTheme.shapes.large,
-    color: Color = itemLayoutColor(influencedByBackground = influencedByBackground),
+    color: Color = MaterialTheme.colorScheme.surfaceBright,
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
     shadowElevation: Dp = itemLayoutShadowElevation(influencedByBackground = influencedByBackground),
     onClick: () -> Unit = {}
@@ -380,7 +390,7 @@ fun MenuSwitchButton(
     enabled: Boolean = true,
     influencedByBackground: Boolean = false,
     shape: Shape = MaterialTheme.shapes.large,
-    color: Color = itemLayoutColor(influencedByBackground = influencedByBackground),
+    color: Color = MaterialTheme.colorScheme.surfaceBright,
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
     shadowElevation: Dp = itemLayoutShadowElevation(influencedByBackground = influencedByBackground)
 ) {
@@ -434,7 +444,7 @@ fun <E> MenuListLayout(
     maxListHeight: Dp = 200.dp,
     influencedByBackground: Boolean = false,
     shape: Shape = MaterialTheme.shapes.large,
-    color: Color = itemLayoutColor(influencedByBackground = influencedByBackground),
+    color: Color = MaterialTheme.colorScheme.surfaceBright,
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
     shadowElevation: Dp = itemLayoutShadowElevation(influencedByBackground = influencedByBackground)
 ) {
@@ -596,7 +606,7 @@ fun MenuSliderLayout(
     influencedByBackground: Boolean = false,
     colors: SliderColors = SliderDefaults.colors(),
     shape: Shape = MaterialTheme.shapes.large,
-    color: Color = itemLayoutColor(influencedByBackground = influencedByBackground),
+    color: Color = MaterialTheme.colorScheme.surfaceBright,
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
     shadowElevation: Dp = itemLayoutShadowElevation(influencedByBackground = influencedByBackground)
 ) {
@@ -660,7 +670,7 @@ fun MenuSliderLayout(
     influencedByBackground: Boolean = false,
     colors: SliderColors = SliderDefaults.colors(),
     shape: Shape = MaterialTheme.shapes.large,
-    color: Color = itemLayoutColor(influencedByBackground = influencedByBackground),
+    color: Color = MaterialTheme.colorScheme.surfaceBright,
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
     shadowElevation: Dp = itemLayoutShadowElevation(influencedByBackground = influencedByBackground)
 ) {
@@ -719,7 +729,7 @@ fun MenuButtonLayout(
     enabled: Boolean = true,
     influencedByBackground: Boolean = false,
     shape: Shape = MaterialTheme.shapes.large,
-    color: Color = itemLayoutColor(influencedByBackground = influencedByBackground),
+    color: Color = MaterialTheme.colorScheme.surfaceBright,
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
     shadowElevation: Dp = itemLayoutShadowElevation(influencedByBackground = influencedByBackground),
     onClick: () -> Unit = {},

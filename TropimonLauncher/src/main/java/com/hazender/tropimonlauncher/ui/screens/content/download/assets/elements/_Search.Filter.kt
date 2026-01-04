@@ -73,7 +73,6 @@ import com.hazender.tropimonlauncher.game.download.assets.platform.PlatformDispl
 import com.hazender.tropimonlauncher.game.download.assets.platform.PlatformFilterCode
 import com.hazender.tropimonlauncher.game.download.assets.platform.PlatformSortField
 import com.hazender.tropimonlauncher.game.versioninfo.MinecraftVersions
-import com.hazender.tropimonlauncher.game.versioninfo.allGameVersions
 import com.hazender.tropimonlauncher.ui.components.LittleTextLabel
 import com.hazender.tropimonlauncher.ui.components.backgroundLayoutColor
 import com.hazender.tropimonlauncher.utils.animation.getAnimateTween
@@ -110,7 +109,7 @@ fun SearchFilter(
     allCategories: List<PlatformFilterCode>,
     categories: List<PlatformFilterCode>,
     onCategoryChanged: (List<PlatformFilterCode>) -> Unit = {},
-    enableModLoader: Boolean = true,
+    enableModLoader: Boolean = false,
     modloaders: List<PlatformDisplayLabel> = emptyList(),
     modloader: PlatformDisplayLabel? = null,
     onModLoaderChange: (PlatformDisplayLabel?) -> Unit = {},
@@ -189,19 +188,6 @@ fun SearchFilter(
                     lWarning("Failed to refresh Minecraft versions")
                 }
             }
-
-            FilterListLayout(
-                modifier = Modifier.fillMaxWidth(),
-                items = versions ?: allGameVersions,
-                selectionMode = FilterSelectionMode.Single,
-                selectedItems = listOfNotNull(gameVersion),
-                onSelectionChange = { new ->
-                    val value = new.firstOrNull()
-                    if (value != gameVersion) onGameVersionChange(value)
-                },
-                getItemLabel = { it },
-                title = stringResource(R.string.download_assets_filter_game_version)
-            )
         }
 
         item {
@@ -239,25 +225,6 @@ fun SearchFilter(
                 },
                 title = stringResource(R.string.download_assets_filter_category)
             )
-        }
-
-        if (enableModLoader) {
-            item {
-                FilterListLayout(
-                    modifier = Modifier.fillMaxWidth(),
-                    items = modloaders,
-                    selectionMode = FilterSelectionMode.Single,
-                    selectedItems = listOfNotNull(modloader),
-                    onSelectionChange = { new ->
-                        val value = new.firstOrNull()
-                        if (value != modloader) onModLoaderChange(value)
-                    },
-                    getItemLabel = { item ->
-                        item.getDisplayName()
-                    },
-                    title = stringResource(R.string.download_assets_filter_modloader)
-                )
-            }
         }
     }
 }

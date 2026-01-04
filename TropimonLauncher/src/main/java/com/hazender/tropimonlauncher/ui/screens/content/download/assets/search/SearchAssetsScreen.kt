@@ -168,7 +168,7 @@ fun SearchAssetsScreen(
     currentKey: NavKey?,
     platformClasses: PlatformClasses,
     initialPlatform: Platform,
-    enablePlatform: Boolean = true,
+    enablePlatform: Boolean = false,
     getCategories: (Platform) -> List<PlatformFilterCode>,
     enableModLoader: Boolean = false,
     getModloaders: (Platform) -> List<PlatformDisplayLabel> = { emptyList() },
@@ -178,7 +178,7 @@ fun SearchAssetsScreen(
 ) {
     val viewModel: SearchScreenViewModel = rememberSearchAssetsViewModel(
         navKey = screenKey,
-        initialPlatform = initialPlatform,
+        initialPlatform = Platform.MODRINTH,
         platformClasses = platformClasses
     )
 

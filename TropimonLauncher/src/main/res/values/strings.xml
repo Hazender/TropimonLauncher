@@ -99,8 +99,8 @@
     <string name="error_client_error">(%s) Client error</string>
     <string name="error_unknown">Unknown error: %s</string>
     <!-- Splash Screen -->
-    <string name="splash_screen_unpack_desc">The launcher needs to install these files to ensure Minecraft runs properly. They are included in the app and must be extracted first. Click the button below to start extraction and update.</string>
     <string name="splash_screen_installing">The launcher is extracting these files. Once done, it will automatically enter the main screen. Please wait patiently.</string>
+    <string name="splash_screen_unpack_desc">The launcher extracting the files required for Minecraft to run properly.\nYou will be taken to the main screen once complete.</string>
     <string name="splash_screen_agree">Install</string>
     <!--  Notification  -->
     <string name="notification_title">Check Notification Permission</string>
@@ -673,10 +673,10 @@
     <!-- Game -->
     <string name="minecraft_download_stat_download_task">Preparing downloads</string>
     <string name="minecraft_download_stat_verify_task">Preparing verifications</string>
-    <string name="minecraft_download_downloading_game_files">Downloading files \n(%1$d/%2$d, %3$s/%4$s)</string>
-    <string name="minecraft_download_verifying_and_repairing_files">Verifying files \n(%1$d/%2$d, %3$s/%4$s)</string>
-    <string name="minecraft_download_progress_retry_downloading_files">Retrying downloads \n(%1$d/%2$d, %3$s/%4$s)</string>
-    <string name="minecraft_download_progress_retry_verifying_files">Retrying verifications \n(%1$d/%2$d, %3$s/%4$s)</string>
+    <string name="minecraft_download_downloading_game_files">Downloading Minecraft: \n%1$d/%2$d \n%3$s/%4$s</string>
+    <string name="minecraft_download_verifying_and_repairing_files">Verifying files: \n%1$d/%2$d \n%3$s/%4$s</string>
+    <string name="minecraft_download_progress_retry_downloading_files">Retrying downloads: \n%1$d/%2$d \n%3$s/%4$s</string>
+    <string name="minecraft_download_progress_retry_verifying_files">Retrying verifications: \n%1$d/%2$d \n%3$s/%4$s</string>
     <string name="minecraft_download_failed">An error occurred while downloading Minecraft</string>
     <string name="minecraft_download_failed_retried">Before this, the launcher had already attempted a retry once, but some tasks still failed to download</string>
     <string name="minecraft_download_failed_notfound">Some dependency files could not be downloaded. If the issue persists after multiple attempts, the game may be missing required library files. It is recommended to reinstall the game.</string>
@@ -986,7 +986,9 @@
     <string name="about_launcher_title">About Launcher</string>
     <string name="about_launcher_version">Launcher Version: %s</string>
     <string name="about_launcher_author_movtery_title">MovTery</string>
-    <string name="about_launcher_author_movtery_text">Author of %s</string>
+    <string name="about_launcher_author_movtery_text">Author of Zalith2</string>
+    <string name="about_launcher_author_hazender_title">Hazender</string>
+    <string name="about_launcher_author_hazender_text">Author of Android Tropimon Launcher</string>
     <string name="about_launcher_project_link">Project Link</string>
     <string name="about_sponsor">Sponsorship Support</string>
     <string name="about_acknowledgements_title">Acknowledgements</string>
@@ -1006,4 +1008,20 @@
     <!--  Url  -->
     <string name="url_wiki_minecraft_game_release">https://minecraft.wiki/w/Java_Edition_%s</string>
     <string name="url_wiki_minecraft_game_snapshot">https://minecraft.wiki/w/Java_Edition_%s</string>
+    <string name="download_no_mods_found">no mods found</string>
+    <string name="download_mods_completed">download mods completed</string>
+    <string name="download_tropimon_mods_progress">Downloading mods: \n%1$d/%2$d \n%3$s/%4$s</string>
+    <string name="download_tropimon_config_progress">Downloading Configs: \n%1$d/%2$d \n%3$s/%4$s</string>
+    <string name="download_tropimon_resourcepacks_progress">Downloading Resource: \n%1$d/%2$d \n%3$s/%4$s</string>
+    <string name="download_tropimon_deleting_obsolete_mods">Deleting obsolete mods…</string>
+
+    <!-- Dans res/values/strings.xml -->
+    <string name="download_tropimon_checking_updates">Checking Updates…</string>
+    <string name="download_tropimon_up_to_date">Tropimon is up to date</string>
+    <string name="download_tropimon_update_completed">Update completed</string>
+    <string name="download_tropimon_updating_progress">Update...</string>
+    <string name="download_tropimon_installation_in_progress">Installation...</string>
+    <string name="download_tropimon_install_tropimon">Install Tropimon</string>
+    <string name="main_launch_game_preparing">Launching…</string>
+    <string name="main_tropimon_serverstatus">Players Online</string>
 </resources>

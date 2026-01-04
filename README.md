@@ -1,95 +1,68 @@
-# Zalith Launcher 2
-![Downloads](https://img.shields.io/github/downloads/ZalithLauncher/ZalithLauncher2/total)
-![Discord](https://img.shields.io/discord/1409012263423185039?logo=discord&label=Discord&color=7289DA&link=https%3A%2F%2Fdiscord.gg%2FyDDkTHp4cJ)
-[![Sponsor](https://img.shields.io/badge/sponsor-30363D?logo=GitHub-Sponsors)](https://afdian.com/a/MovTery)
-<!-- [![QQ](https://img.shields.io/badge/QQ-blue)](https://qm.qq.com/q/2MVxS0B29y) -->
+# Tropimon Launcher
+![Discord](https://img.shields.io/discord/tropimon?logo=discord&label=Discord&color=7289DA)
 
-[简体中文](README_ZH_CN.md) | [繁體中文](README_ZH_TW.md)
+**Tropimon Launcher** est un launcher Android personnalisé pour le serveur Minecraft **Tropimon**. Basé sur [Zalith Launcher 2](https://github.com/ZalithLauncher/ZalithLauncher2), ce launcher utilise [PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher) comme moteur de lancement principal et propose une interface moderne construite avec **Jetpack Compose** et **Material Design 3**.
 
-**Zalith Launcher 2** is a newly designed launcher for **Android devices** tailored for [Minecraft: Java Edition](https://www.minecraft.net/). The project uses [PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/tree/v3_openjdk/app_pojavlauncher/src/main/jni) as its core launching engine and features a modern UI built with **Jetpack Compose** and **Material Design 3**.  
-We are currently building our official website [zalithlauncher.cn](https://zalithlauncher.cn)  
-Additionally, we are aware that a third-party website has been set up using the name “Zalith Launcher,” appearing to be official. Please note: **this site was not created by us**. It exploits the name to display ads for profit. We **do not participate in, endorse, or trust** such content.  
-Please stay vigilant and **protect your personal privacy**!  
+## ✨ Caractéristiques
 
-> [!WARNING]
-> This project is **completely separate** from [ZalithLauncher](https://github.com/ZalithLauncher/ZalithLauncher).  
-> The project is in an early development stage. Many features are still under construction—stay tuned for updates!
+- 🎮 Launcher optimisé pour le serveur Tropimon
+- 📦 Téléchargement automatique des mods requis
+- 🎨 Interface moderne et intuitive
+- 🔄 Synchronisation automatique des configurations
+- 📱 Optimisé pour les appareils Android
+- 🌐 Support multilingue
+- 🔐 Connexion sécurisée avec authentification Microsoft
 
-## 🌐 Language and Translation Support
+## 📋 Prérequis
 
-We are using the Weblate platform to translate Zalith Launcher 2. You're welcome to join our [Weblate project](https://hosted.weblate.org/projects/zalithlauncher2) and contribute to the translations!  
-Thank you to every language contributor for helping make Zalith Launcher 2 more multilingual and global!
+- **Appareil Android** avec API 26 (Android 8.0) ou supérieur
+- **Espace de stockage** : ~1,5 Go minimum (selon les mods installés)
+- **Connexion Internet** pour le téléchargement des ressources et l'accès au serveur.
 
-## 👨‍💻 Developer
+## 📜 Licence
 
-This project is currently being developed solely by [@MovTery](https://github.com/MovTery).
-Feedback, suggestions, and issue reports are very welcome. As it's a personal project, development may take time—thank you for your patience!
+Ce projet est basé sur **Zalith Launcher 2** et est sous licence **[GPL-3.0](LICENSE)**.
 
-## 📦 Build Instructions (For Developers)
+### Conditions supplémentaires (Conformément à la Section 7 de la licence GPLv3)
 
-> The following section is for developers who wish to contribute or build the project locally.
+1. Lors de la distribution d'une version modifiée de ce programme, vous devez raisonnablement modifier le nom ou le numéro de version du programme pour le distinguer de la version originale.
+    - Les versions modifiées **ne doivent pas inclure le nom "Tropimon Launcher" ou une appellation similaire** sans autorisation.
 
-### Requirements
+2. Vous ne devez pas retirer les mentions de copyright affichées par le programme.
 
-* Android Studio **Bumblebee** or newer
-* Android SDK:
-  * **Minimum API level**: 26
-  * **Target API level**: 35
-* JDK 11
+## 🙏 Remerciements
 
-### Build Steps
+- **[Zalith Launcher 2](https://github.com/ZalithLauncher/ZalithLauncher2)** - Projet de base
+- **[PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher)** - Moteur de lancement
+- **L'équipe Tropimon** - Pour le serveur et le soutien
+- **La communauté** - Pour les retours et suggestions
 
-```bash
-git clone git@github.com:ZalithLauncher/ZalithLauncher2.git
-# Open the project in Android Studio and build
-```
+## 📞 Support
 
-## 📜 License
+- 🌐 Site web : [tropimon.fr](https://tropimon.fr)
+- 💬 Discord : [Rejoindre le serveur](https://discord.gg/tropimon)
+- 🐛 Signaler un bug : [Issues GitHub](https://github.com/Hazender/TropimonLauncher/issues)
 
-This project is licensed under the **[GPL-3.0 license](LICENSE)**.
+## 📚 Bibliothèques Open Source
 
-### Additional Terms (Pursuant to Section 7 of the GPLv3 License)
+Ce projet utilise les bibliothèques open source suivantes :
 
-1. When distributing a modified version of this program, you must reasonably modify the program's name or version number to distinguish it from the original version. (According to [GPLv3, 7(c)](https://github.com/ZalithLauncher/ZalithLauncher2/blob/969827b/LICENSE#L372-L374))
-    - Modified versions **must not include the original program name "ZalithLauncher" or its abbreviation "ZL" in their name, nor use any name that is similar enough to cause confusion with the official name**.
-    - All modified versions **must clearly indicate that they are “Unofficial Modified Versions” on the program’s startup screen or main interface**.
-    - The application name of the program can be modified in [gradle.properties](./ZalithLauncher/gradle.properties).
+| Bibliothèque                          | Licence              | Lien                                                                              |
+|---------------------------------------|----------------------|-----------------------------------------------------------------------------------|
+| Zalith Launcher 2                     | GPL-3.0              | [Link](https://github.com/ZalithLauncher/ZalithLauncher2)                         |
+| PojavLauncher                         | GPL-3.0              | [Link](https://github.com/PojavLauncherTeam/PojavLauncher)                        |
+| AWS Android SDK S3                    | Apache 2.0           | [Link](https://github.com/aws-amplify/aws-sdk-android)                            |
+| Jetpack Compose                       | Apache 2.0           | [Link](https://developer.android.com/jetpack/compose)                             |
+| Kotlin                                | Apache 2.0           | [Link](https://kotlinlang.org/)                                                   |
+| Ktor                                  | Apache 2.0           | [Link](https://ktor.io)                                                           |
+| Coil                                  | Apache 2.0           | [Link](https://github.com/coil-kt/coil)                                           |
+| Gson                                  | Apache 2.0           | [Link](https://github.com/google/gson)                                            |
+| Apache Commons                        | Apache 2.0           | [Link](https://commons.apache.org/)                                               |
+| MMKV                                  | BSD 3-Clause         | [Link](https://github.com/Tencent/MMKV)                                           |
+| StringFog                             | Apache 2.0           | [Link](https://github.com/MegatronKing/StringFog)                                 |
 
-2. You must not remove the copyright notices displayed by the program. (According to [GPLv3, 7(b)](https://github.com/ZalithLauncher/ZalithLauncher2/blob/969827b/LICENSE#L368-L370))
+Pour la liste complète des dépendances, consultez le fichier [libs.versions.toml](./gradle/libs.versions.toml).
 
-## Open Source Libraries and Licenses
+---
 
-This software uses the following open source libraries:
-
-| Library                               | Copyright                                                                   | License              | Official Link                                                                     |
-|---------------------------------------|-----------------------------------------------------------------------------|----------------------|-----------------------------------------------------------------------------------|
-| androidx-constraintlayout-compose     | Copyright © The Android Open Source Project                                 | Apache 2.0           | [Link](https://developer.android.com/develop/ui/compose/layouts/constraintlayout) |
-| androidx-material-icons-core          | Copyright © The Android Open Source Project                                 | Apache 2.0           | [Link](https://developer.android.com/jetpack/androidx/releases/compose-material)  |
-| androidx-material-icons-extended      | Copyright © The Android Open Source Project                                 | Apache 2.0           | [Link](https://developer.android.com/jetpack/androidx/releases/compose-material)  |
-| Apache Commons Codec                  | -                                                                           | Apache 2.0           | [Link](https://commons.apache.org/proper/commons-codec)                           |
-| Apache Commons Compress               | -                                                                           | Apache 2.0           | [Link](https://commons.apache.org/proper/commons-compress)                        |
-| Apache Commons IO                     | -                                                                           | Apache 2.0           | [Link](https://commons.apache.org/proper/commons-io)                              |
-| ByteHook                              | Copyright © 2020-2024 ByteDance, Inc.                                       | MIT License          | [Link](https://github.com/bytedance/bhook)                                        |
-| Coil Compose                          | Copyright © 2025 Coil Contributors                                          | Apache 2.0           | [Link](https://github.com/coil-kt/coil)                                           |
-| Coil Gifs                             | Copyright © 2025 Coil Contributors                                          | Apache 2.0           | [Link](https://github.com/coil-kt/coil)                                           |
-| Fishnet                               | Copyright © 2025 Kyant                                                      | Apache 2.0           | [Link](https://github.com/Kyant0/Fishnet)                                         |
-| Gson                                  | Copyright © 2008 Google Inc.                                                | Apache 2.0           | [Link](https://github.com/google/gson)                                            |
-| kotlinx.coroutines                    | Copyright © 2000-2020 JetBrains s.r.o.                                      | Apache 2.0           | [Link](https://github.com/Kotlin/kotlinx.coroutines)                              |
-| ktor-client-cio                       | Copyright © 2000-2023 JetBrains s.r.o.                                      | Apache 2.0           | [Link](https://ktor.io)                                                           |
-| ktor-client-content-negotiation       | Copyright © 2000-2023 JetBrains s.r.o.                                      | Apache 2.0           | [Link](https://ktor.io)                                                           |
-| ktor-client-core                      | Copyright © 2000-2023 JetBrains s.r.o.                                      | Apache 2.0           | [Link](https://ktor.io)                                                           |
-| ktor-http                             | Copyright © 2000-2023 JetBrains s.r.o.                                      | Apache 2.0           | [Link](https://ktor.io)                                                           |
-| ktor-serialization-kotlinx-json       | Copyright © 2000-2023 JetBrains s.r.o.                                      | Apache 2.0           | [Link](https://ktor.io)                                                           |
-| LWJGL - Lightweight Java Game Library | Copyright © 2012-present Lightweight Java Game Library All rights reserved. | BSD 3-Clause License | [Link](https://github.com/LWJGL/lwjgl3)                                           |
-| material-color-utilities              | Copyright 2021 Google LLC                                                   | Apache 2.0           | [Link](https://github.com/material-foundation/material-color-utilities)           |
-| Maven Artifact                        | Copyright © The Apache Software Foundation                                  | Apache 2.0           | [Link](https://github.com/apache/maven/tree/maven-3.9.9/maven-artifact)           |
-| Media3                                | Copyright © The Android Open Source Project                                 | Apache 2.0           | [Link](https://developer.android.com/jetpack/androidx/releases/media3)            |
-| MMKV                                  | Copyright © 2018 THL A29 Limited, a Tencent company.                        | BSD 3-Clause License | [Link](https://github.com/Tencent/MMKV)                                           |
-| Navigation 3                          | Copyright © The Android Open Source Project                                 | Apache 2.0           | [Link](https://developer.android.com/jetpack/androidx/releases/navigation3)       |
-| NBT                                   | Copyright © 2016 - 2020 Querz                                               | MIT License          | [Link](https://github.com/Querz/NBT)                                              |
-| OkHttp                                | Copyright © 2019 Square, Inc.                                               | Apache 2.0           | [Link](https://github.com/square/okhttp)                                          |
-| Process Phoenix                       | Copyright © 2015 Jake Wharton                                               | Apache 2.0           | [Link](https://github.com/JakeWharton/ProcessPhoenix)                             |
-| proxy-client-android                  | -                                                                           | LGPL-3.0 License     | [Link](https://github.com/TouchController/TouchController)                        |
-| Reorderable                           | Copyright © 2023 Calvin Liang                                               | Apache 2.0           | [Link](https://github.com/Calvin-LL/Reorderable)                                  |
-| StringFog                             | Copyright © 2016-2023, Megatron King                                        | Apache 2.0           | [Link](https://github.com/MegatronKing/StringFog)                                 |
-| XZ for Java                           | Copyright © The XZ for Java authors and contributors                        | 0BSD License         | [Link](https://tukaani.org/xz/java.html)                                          |
+**Made with ❤️ for the Tropimon community**

@@ -61,9 +61,16 @@ object TropiTaskSystem {
     }
 
     fun cancelAll() {
+        // Annuler la tâche en cours d'exécution
         currentTaskJob?.cancel()
+
+        // Annuler le processor
         processorJob?.cancel()
+
+        // Vider la file d'attente
         while (taskQueue.tryReceive().getOrNull() != null) { /* vide */ }
+
+        // Marquer toutes les tâches comme annulées
         _tasksFlow.value.forEach { task ->
             if (task.taskState != TaskState.COMPLETED) {
                 task.taskState = TaskState.CANCELLED
@@ -72,6 +79,8 @@ object TropiTaskSystem {
         }
 
         _tasksFlow.value = emptyList()
+
+        // Relancer le processor
         startProcessor()
     }
 

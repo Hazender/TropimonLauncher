@@ -42,7 +42,6 @@ import androidx.compose.material.icons.outlined.VideogameAsset
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationRailItem
-import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -67,7 +66,6 @@ import com.hazender.tropimonlauncher.ui.screens.content.settings.ControlManageSc
 import com.hazender.tropimonlauncher.ui.screens.content.settings.ControlSettingsScreen
 import com.hazender.tropimonlauncher.ui.screens.content.settings.GameSettingsScreen
 import com.hazender.tropimonlauncher.ui.screens.content.settings.GamepadSettingsScreen
-import com.hazender.tropimonlauncher.ui.screens.content.settings.JavaManageScreen
 import com.hazender.tropimonlauncher.ui.screens.content.settings.LauncherSettingsScreen
 import com.hazender.tropimonlauncher.ui.screens.content.settings.RendererSettingsScreen
 import com.hazender.tropimonlauncher.ui.screens.navigateOnce
@@ -118,12 +116,11 @@ fun SettingsScreen(
 }
 
 private val settingItems = listOf(
+    CategoryItem(NormalNavKey.Settings.Launcher, { CategoryIcon(R.drawable.ic_setting_launcher, R.string.settings_tab_launcher) }, R.string.settings_tab_launcher),
     CategoryItem(NormalNavKey.Settings.Renderer, { CategoryIcon(Icons.Outlined.VideoSettings, R.string.settings_tab_renderer) }, R.string.settings_tab_renderer),
     CategoryItem(NormalNavKey.Settings.Game, { CategoryIcon(Icons.Outlined.RocketLaunch, R.string.settings_tab_game) }, R.string.settings_tab_game),
     CategoryItem(NormalNavKey.Settings.Control, { CategoryIcon(Icons.Outlined.VideogameAsset, R.string.settings_tab_control) }, R.string.settings_tab_control),
-    CategoryItem(NormalNavKey.Settings.Gamepad, { CategoryIcon(Icons.Outlined.SportsEsports, R.string.settings_tab_gamepad) }, R.string.settings_tab_gamepad),
-    CategoryItem(NormalNavKey.Settings.Launcher, { CategoryIcon(R.drawable.ic_setting_launcher, R.string.settings_tab_launcher) }, R.string.settings_tab_launcher),
-    CategoryItem(NormalNavKey.Settings.JavaManager, { CategoryIcon(R.drawable.ic_java, R.string.settings_tab_java_manage) }, R.string.settings_tab_java_manage, division = true),
+    CategoryItem(NormalNavKey.Settings.Gamepad, { CategoryIcon(Icons.Outlined.SportsEsports, R.string.settings_tab_gamepad) }, R.string.settings_tab_gamepad, division = true),
     CategoryItem(NormalNavKey.Settings.ControlManager, { CategoryIcon(Icons.Outlined.VideogameAsset, R.string.settings_tab_control_manage) }, R.string.settings_tab_control_manage),
     CategoryItem(NormalNavKey.Settings.AboutInfo, { CategoryIcon(Icons.Outlined.Info, R.string.settings_tab_info_about) }, R.string.settings_tab_info_about, division = true)
 )
@@ -226,9 +223,6 @@ private fun NavigationUI(
                 }
                 entry<NormalNavKey.Settings.Launcher> {
                     LauncherSettingsScreen(key, settingsScreenKey, mainScreenKey, eventViewModel, submitError)
-                }
-                entry<NormalNavKey.Settings.JavaManager> {
-                    JavaManageScreen(key, settingsScreenKey, mainScreenKey, submitError)
                 }
                 entry<NormalNavKey.Settings.ControlManager> {
                     ControlManageScreen(key, settingsScreenKey, mainScreenKey, submitError)

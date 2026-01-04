@@ -157,7 +157,8 @@ fun ImportFileButton(
                             try {
                                 val fileName = context.getFileName(uri) ?: throw IOException("Failed to get file name")
                                 task.updateProgress(-1f, R.string.empty_holder, fileName)
-                                val outputFile = File(targetDir, fileName)
+                                val localFileName = if (fileName.startsWith("LOCAL-")) fileName else "LOCAL-$fileName"
+                                val outputFile = File(targetDir, localFileName)
                                 context.copyLocalFile(uri, outputFile)
                                 //成功复制，如调用者有额外操作，可使用回调运行
                                 onFileCopied(task, outputFile)
