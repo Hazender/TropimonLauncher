@@ -1,5 +1,5 @@
 # Tropimon Launcher
-![Discord](https://img.shields.io/discord/tropimon?logo=discord&label=Discord&color=7289DA)
+![Discord](https://img.shields.io/discord/1087053502561390694?logo=discord&label=Discord&color=7289DA)
 
 **Tropimon Launcher** est un launcher Android personnalisé pour le serveur Minecraft **Tropimon**. Basé sur [Zalith Launcher 2](https://github.com/ZalithLauncher/ZalithLauncher2), ce launcher utilise [PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher) comme moteur de lancement principal et propose une interface moderne construite avec **Jetpack Compose** et **Material Design 3**.
 
