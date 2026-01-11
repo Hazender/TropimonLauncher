@@ -1,5 +1,8 @@
 /*
- * Zalith Launcher 2
+ * Tropimon Launcher
+ * Copyright (C) 2025 Hazender
+ *
+ * Based on Zalith Launcher 2
  * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,9 +23,15 @@ package com.hazender.tropimonlauncher.ui.screens.content
 
 import android.content.Context
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,8 +45,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -57,19 +69,30 @@ import com.hazender.tropimonlauncher.ui.base.BaseScreen
 import com.hazender.tropimonlauncher.ui.components.BackgroundCard
 import com.hazender.tropimonlauncher.ui.components.MarqueeText
 import com.hazender.tropimonlauncher.ui.components.ScalingActionButton
-import com.hazender.tropimonlauncher.ui.screens.NestedNavKey
+import com.hazender.tropimonlauncher.ui.components.SimpleAlertDialog
+import com.hazender.tropimonlauncher.ui.components.SimpleTaskDialog
 import com.hazender.tropimonlauncher.ui.screens.NormalNavKey
 import com.hazender.tropimonlauncher.ui.screens.content.elements.AccountAvatar
 import com.hazender.tropimonlauncher.utils.animation.swapAnimateDpAsState
+import com.hazender.tropimonlauncher.utils.logging.Logger.lError
 import com.hazender.tropimonlauncher.viewmodel.LaunchGameViewModel
 import com.hazender.tropimonlauncher.viewmodel.ScreenBackStackViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
+import java.io.File
+
+sealed interface DeleteOperation {
+    data object None: DeleteOperation
+    data class DeleteConfigs(val version: Version): DeleteOperation
+    data class DeleteMods(val version: Version): DeleteOperation
+    data class DeleteVersion(val version: Version): DeleteOperation
+    data class RunTask(val title: Int, val task: suspend () -> Unit): DeleteOperation
+}
 
 @Composable
 fun LauncherScreen(
     backStackViewModel: ScreenBackStackViewModel,
-    navigateToVersions: (Version) -> Unit,
     launchGameViewModel: LaunchGameViewModel
 ) {
     val context = LocalContext.current
@@ -95,17 +118,6 @@ fun LauncherScreen(
                 context = context,
                 toAccountManageScreen = {
                     backStackViewModel.mainScreen.navigateTo(NormalNavKey.AccountManager)
-                },
-                toVersionManageScreen = {
-                    backStackViewModel.mainScreen.removeAndNavigateTo(
-                        remove = NestedNavKey.VersionSettings::class,
-                        screenKey = NormalNavKey.VersionsManager
-                    )
-                },
-                toVersionSettingsScreen = {
-                    VersionsManager.currentVersion?.let { version ->
-                        navigateToVersions(version)
-                    }
                 }
             )
         }
@@ -157,15 +169,175 @@ private fun ContentMenu(
         }
     }
 }
+
+@Composable
+private fun DeleteOperationHandler(
+    deleteOperation: DeleteOperation,
+    updateOperation: (DeleteOperation) -> Unit
+) {
+    when(deleteOperation) {
+        is DeleteOperation.None -> {}
+        is DeleteOperation.DeleteConfigs -> {
+            DeleteConfigsDialog(
+                version = deleteOperation.version,
+                onDismissRequest = { updateOperation(DeleteOperation.None) },
+                onConfirm = { title, task ->
+                    updateOperation(
+                        DeleteOperation.RunTask(
+                            title = title,
+                            task = task
+                        )
+                    )
+                }
+            )
+        }
+        is DeleteOperation.DeleteMods -> {
+            DeleteModsDialog(
+                version = deleteOperation.version,
+                onDismissRequest = { updateOperation(DeleteOperation.None) },
+                onConfirm = { title, task ->
+                    updateOperation(
+                        DeleteOperation.RunTask(
+                            title = title,
+                            task = task
+                        )
+                    )
+                }
+            )
+        }
+        is DeleteOperation.DeleteVersion -> {
+            DeleteVersionDialog(
+                version = deleteOperation.version,
+                onDismissRequest = { updateOperation(DeleteOperation.None) },
+                onConfirm = { title, task ->
+                    updateOperation(
+                        DeleteOperation.RunTask(
+                            title = title,
+                            task = task
+                        )
+                    )
+                }
+            )
+        }
+        is DeleteOperation.RunTask -> {
+            SimpleTaskDialog(
+                title = stringResource(deleteOperation.title),
+                task = deleteOperation.task,
+                context = Dispatchers.IO,
+                onDismiss = { updateOperation(DeleteOperation.None) },
+                onError = { e ->
+                    lError("Failed to run task.", e)
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun DeleteConfigsDialog(
+    version: Version,
+    onDismissRequest: () -> Unit = {},
+    onConfirm: (title: Int, task: suspend () -> Unit) -> Unit = { _, _ -> }
+) {
+    SimpleAlertDialog(
+        title = stringResource(R.string.versions_manage_delete_config),
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(text = stringResource(R.string.versions_manage_delete_config_tip_hint1, version.getVersionName()))
+                Text(text = stringResource(R.string.versions_manage_delete_config_tip_hint2))
+                Text(text = stringResource(R.string.versions_manage_delete_config_tip_hint3))
+                Text(text = stringResource(R.string.versions_manage_delete_config_tip_hint4))
+            }
+        },
+        onConfirm = {
+            onConfirm(R.string.versions_manage_delete_version) {
+                deleteVersionConfigs(version)
+            }
+        },
+        onCancel = onDismissRequest,
+        onDismissRequest = onDismissRequest
+    )
+}
+
+@Composable
+private fun DeleteModsDialog(
+    version: Version,
+    onDismissRequest: () -> Unit = {},
+    onConfirm: (title: Int, task: suspend () -> Unit) -> Unit = { _, _ -> }
+) {
+    SimpleAlertDialog(
+        title = stringResource(R.string.versions_manage_delete_mods),
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(text = stringResource(R.string.versions_manage_delete_mods_tip_hint1, version.getVersionName()))
+                Text(text = stringResource(R.string.versions_manage_delete_mods_tip_hint2))
+            }
+        },
+        onConfirm = {
+            onConfirm(R.string.versions_manage_delete_version) {
+                deleteVersionMods(version)
+            }
+        },
+        onCancel = onDismissRequest,
+        onDismissRequest = onDismissRequest
+    )
+}
+
+@Composable
+private fun DeleteVersionDialog(
+    version: Version,
+    onDismissRequest: () -> Unit = {},
+    onConfirm: (title: Int, task: suspend () -> Unit) -> Unit = { _, _ -> }
+) {
+    SimpleAlertDialog(
+        title = stringResource(R.string.versions_manage_delete_version),
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(text = stringResource(R.string.versions_manage_delete_version_tip_hint1, version.getVersionName()))
+            }
+        },
+        onConfirm = {
+            onConfirm(R.string.versions_manage_delete_version) {
+                VersionsManager.deleteVersion(version)
+            }
+        },
+        onCancel = onDismissRequest,
+        onDismissRequest = onDismissRequest
+    )
+}
+
+private suspend fun deleteVersionConfigs(version: Version) {
+    val versionDir = version.getVersionPath()
+
+    // Supprimer le dossier config
+    val configDir = File(versionDir, "config")
+    if (configDir.exists() && configDir.isDirectory) {
+        configDir.deleteRecursively()
+    }
+
+    // Supprimer le fichier options.txt
+    val optionsFile = File(versionDir, "options.txt")
+    if (optionsFile.exists()) {
+        optionsFile.delete()
+    }
+}
+
+private suspend fun deleteVersionMods(version: Version) {
+    val versionDir = version.getVersionPath()
+
+    // Supprimer le dossier mods
+    val modsDir = File(versionDir, "mods")
+    if (modsDir.exists() && modsDir.isDirectory) {
+        modsDir.deleteRecursively()
+    }
+}
 @Composable
 private fun RightMenu(
     isVisible: Boolean,
     modifier: Modifier = Modifier,
     launchGameViewModel: LaunchGameViewModel,
     context: Context,
-    toAccountManageScreen: () -> Unit = {},
-    toVersionManageScreen: () -> Unit = {},
-    toVersionSettingsScreen: () -> Unit = {}
+    toAccountManageScreen: () -> Unit = {}
 ) {
     val xOffset by swapAnimateDpAsState(
         targetValue = 40.dp,
@@ -177,6 +349,7 @@ private fun RightMenu(
     val isChecking by TropiInstallManager.isChecking.collectAsState()
 
     var isLaunchingGame by remember { mutableStateOf(false) }
+    var deleteOperation by remember { mutableStateOf<DeleteOperation>(DeleteOperation.None) }
 
     val tasks by combine(
         TaskSystem.tasksFlow,
@@ -199,6 +372,12 @@ private fun RightMenu(
         }
     }
 
+    // Gestion des opérations de suppression
+    DeleteOperationHandler(
+        deleteOperation = deleteOperation,
+        updateOperation = { deleteOperation = it }
+    )
+
     BackgroundCard(
         modifier = modifier.offset { IntOffset(x = xOffset.roundToPx(), y = 0) },
         shape = MaterialTheme.shapes.extraLarge
@@ -212,7 +391,6 @@ private fun RightMenu(
             ) {
                 val (serverStatus, accountAvatar, versionManagerLayout, launchButton) = createRefs()
 
-                // Indicateur de statut du serveur
                 ServerStatusIndicator(
                     modifier = Modifier
                         .constrainAs(serverStatus) {
@@ -234,13 +412,23 @@ private fun RightMenu(
 
                 VersionManagerLayout(
                     version = version,
+                    onDeleteConfigs = { ver ->
+                        deleteOperation = DeleteOperation.DeleteConfigs(ver)
+                    },
+                    onDeleteMods = { ver ->
+                        deleteOperation = DeleteOperation.DeleteMods(ver)
+                    },
+                    onDeleteVersion = { ver ->
+                        deleteOperation = DeleteOperation.DeleteVersion(ver)
+                    },
                     modifier = Modifier
                         .constrainAs(versionManagerLayout) {
                             start.linkTo(parent.start)
                             end.linkTo(parent.end)
                             bottom.linkTo(launchButton.top)
                         }
-                    )
+                )
+
                 ScalingActionButton(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -297,14 +485,25 @@ private fun RightMenu(
         }
     }
 }
+
 @Composable
 private fun VersionManagerLayout(
     version: Version?,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onDeleteConfigs: (Version) -> Unit = {},
+    onDeleteMods: (Version) -> Unit = {},
+    onDeleteVersion: (Version) -> Unit = {}
 ) {
+    var menuExpanded by remember { mutableStateOf(false) }
+    var containerWidth by remember { mutableStateOf(0) }
+    var menuWidth by remember { mutableStateOf(0) }
+
     Box(
         modifier = modifier
             .clip(shape = MaterialTheme.shapes.large)
+            .onGloballyPositioned { coordinates ->
+                containerWidth = coordinates.size.width
+            }
     ) {
         if (VersionsManager.isRefreshing) {
             Box(
@@ -333,12 +532,110 @@ private fun VersionManagerLayout(
                         maxLines = 1
                     )
                 } else {
+                    var isPressed by remember { mutableStateOf(false) }
+
+                    LaunchedEffect(isPressed) {
+                        if (isPressed) {
+                            delay(500)
+                            if (isPressed) {
+                                menuExpanded = true
+                                isPressed = false
+                            }
+                        }
+                    }
+
                     Text(
-                        modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
+                        modifier = Modifier
+                            .basicMarquee(iterations = Int.MAX_VALUE)
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null
+                            ) { }
+                            .pointerInput(Unit) {
+                                detectTapGestures(
+                                    onPress = {
+                                        isPressed = true
+                                        tryAwaitRelease()
+                                        isPressed = false
+                                    }
+                                )
+                            },
                         text = version.getVersionName(),
                         style = MaterialTheme.typography.labelMedium,
                         maxLines = 1
                     )
+
+                    if (menuExpanded && containerWidth > 0) {
+                        DropdownMenu(
+                            expanded = true,
+                            shape = MaterialTheme.shapes.large,
+                            shadowElevation = 3.dp,
+                            onDismissRequest = { menuExpanded = false },
+                            modifier = Modifier.onGloballyPositioned { coordinates ->
+                                if (menuWidth == 0) {
+                                    menuWidth = coordinates.size.width
+                                }
+                            },
+                            offset = with(LocalDensity.current) {
+                                // Si on a la largeur du menu, on calcule l'offset exact
+                                val xOffsetPx = if (menuWidth > 0) {
+                                    (containerWidth - menuWidth) / 2
+                                } else {
+                                    // Sinon estimation par défaut
+                                    val menuWidthDp = 116.dp
+                                    (containerWidth - menuWidthDp.toPx()) / 2
+                                }
+
+                                DpOffset(
+                                    x = xOffsetPx.toFloat().toDp(),
+                                    y = (-8).dp
+                                )
+                            }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text(text = "Version") },
+                                leadingIcon = {
+                                    Icon(
+                                        modifier = Modifier.size(20.dp),
+                                        imageVector = Icons.Filled.Delete,
+                                        contentDescription = "Delete Version"
+                                    )
+                                },
+                                onClick = {
+                                    onDeleteVersion(version)
+                                    menuExpanded = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text(text = "Config") },
+                                leadingIcon = {
+                                    Icon(
+                                        modifier = Modifier.size(20.dp),
+                                        imageVector = Icons.Filled.Delete,
+                                        contentDescription = "Delete Configs"
+                                    )
+                                },
+                                onClick = {
+                                    onDeleteConfigs(version)
+                                    menuExpanded = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text(text = "Mods") },
+                                leadingIcon = {
+                                    Icon(
+                                        modifier = Modifier.size(20.dp),
+                                        imageVector = Icons.Filled.Delete,
+                                        contentDescription = "Delete Mods"
+                                    )
+                                },
+                                onClick = {
+                                    onDeleteMods(version)
+                                    menuExpanded = false
+                                }
+                            )
+                        }
+                    }
                 }
             }
         }

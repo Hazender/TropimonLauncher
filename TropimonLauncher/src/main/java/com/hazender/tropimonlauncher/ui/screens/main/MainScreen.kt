@@ -1,5 +1,8 @@
 /*
- * Zalith Launcher 2
+ * Tropimon Launcher
+ * Copyright (C) 2025 Hazender
+ *
+ * Based on Zalith Launcher 2
  * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -34,7 +37,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardBackspace
 import androidx.compose.material.icons.automirrored.rounded.ArrowLeft
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.Extension
 import androidx.compose.material3.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -205,7 +207,7 @@ fun MainScreen(
                                     addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
                                 }
                                 context.startActivity(intent)
-                            } catch (e: Exception) {
+                            } catch (_: Exception) {
                                 eventViewModel.sendEvent(
                                     EventViewModel.Event.OpenLink(url)
                                 )
@@ -221,7 +223,7 @@ fun MainScreen(
                                     addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
                                 }
                                 context.startActivity(intent)
-                            } catch (e: Exception) {
+                            } catch (_: Exception) {
                                 eventViewModel.sendEvent(
                                     EventViewModel.Event.OpenLink(url)
                                 )
@@ -508,7 +510,6 @@ private fun NavigationUI(
                 entry<NormalNavKey.LauncherMain> {
                     LauncherScreen(
                         backStackViewModel = screenBackStackModel,
-                        navigateToVersions = navigateToVersions,
                         launchGameViewModel = launchGameViewModel
                     )
                 }
@@ -687,7 +688,6 @@ fun TaskItem(
     taskMessageRes: Int?,
     taskMessageArgs: Array<out Any>?,
     modifier: Modifier = Modifier,
-    influencedByBackground: Boolean = true,
     shape: Shape = MaterialTheme.shapes.large,
     color: Color = MaterialTheme.colorScheme.surfaceBright,
     contentColor: Color = MaterialTheme.colorScheme.onSurface,

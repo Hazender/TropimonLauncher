@@ -1,5 +1,8 @@
 /*
- * Zalith Launcher 2
+ * Tropimon Launcher
+ * Copyright (C) 2025 Hazender
+ *
+ * Based on Zalith Launcher 2
  * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -117,10 +120,8 @@ fun UnpackScreen(
 
                 Spacer(modifier = Modifier.height(64.dp))
 
-                // Conteneur pour le texte : largeur max 80 % et padding
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth(0.8f)
                         .padding(horizontal = 32.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {

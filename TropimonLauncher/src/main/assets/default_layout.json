@@ -27,9 +27,141 @@
   },
   "layers": [
     {
+      "name": "nav",
+      "uuid": "4d45147d23c9",
+      "hide": false,
+      "hideWhenGamepad": false,
+      "visibilityType": "always",
+      "normalButtons": [
+        {
+          "text": {
+            "default": "",
+            "matchQueue": []
+          },
+          "uuid": "4b03bbaa29e342bd92",
+          "position": {
+            "x": 0,
+            "y": 10000
+          },
+          "buttonSize": {
+            "type": "percentage",
+            "widthDp": 50.0,
+            "heightDp": 50.0,
+            "widthPercentage": 1800,
+            "heightPercentage": 1000,
+            "widthReference": "screen_width",
+            "heightReference": "screen_height"
+          },
+          "buttonStyle": "24b81486af8c",
+          "textAlignment": "Center",
+          "visibilityType": "in_game",
+          "isSwipple": false,
+          "isPenetrable": false,
+          "isToggleable": false
+        },
+        {
+          "text": {
+            "default": "Eq.",
+            "matchQueue": []
+          },
+          "uuid": "8738e7f20e9e4161aa",
+          "position": {
+            "x": 4,
+            "y": 10000
+          },
+          "buttonSize": {
+            "type": "percentage",
+            "widthDp": 50.0,
+            "heightDp": 50.0,
+            "widthPercentage": 600,
+            "heightPercentage": 1000,
+            "widthReference": "screen_width",
+            "heightReference": "screen_height"
+          },
+          "buttonStyle": "ee9a62164625",
+          "textAlignment": "Center",
+          "visibilityType": "in_game",
+          "clickEvents": [
+            {
+              "type": "key",
+              "key": "GLFW_KEY_Z"
+            }
+          ],
+          "isSwipple": false,
+          "isPenetrable": false,
+          "isToggleable": false
+        },
+        {
+          "text": {
+            "default": "Hide",
+            "matchQueue": []
+          },
+          "uuid": "e31a73d984254edca2",
+          "position": {
+            "x": 641,
+            "y": 10000
+          },
+          "buttonSize": {
+            "type": "percentage",
+            "widthDp": 50.0,
+            "heightDp": 50.0,
+            "widthPercentage": 600,
+            "heightPercentage": 1000,
+            "widthReference": "screen_width",
+            "heightReference": "screen_height"
+          },
+          "buttonStyle": "ee9a62164625",
+          "textAlignment": "Center",
+          "visibilityType": "in_game",
+          "clickEvents": [
+            {
+              "type": "key",
+              "key": "GLFW_KEY_O"
+            }
+          ],
+          "isSwipple": false,
+          "isPenetrable": false,
+          "isToggleable": false
+        },
+        {
+          "text": {
+            "default": "Nav",
+            "matchQueue": []
+          },
+          "uuid": "d9e2c8261eed4ba3a6",
+          "position": {
+            "x": 1278,
+            "y": 10000
+          },
+          "buttonSize": {
+            "type": "percentage",
+            "widthDp": 50.0,
+            "heightDp": 50.0,
+            "widthPercentage": 600,
+            "heightPercentage": 1000,
+            "widthReference": "screen_width",
+            "heightReference": "screen_height"
+          },
+          "buttonStyle": "032e4e072e86",
+          "textAlignment": "Center",
+          "visibilityType": "in_game",
+          "clickEvents": [
+            {
+              "type": "key",
+              "key": "GLFW_KEY_X"
+            }
+          ],
+          "isSwipple": false,
+          "isPenetrable": false,
+          "isToggleable": false
+        }
+      ]
+    },
+    {
       "name": "gui",
       "uuid": "6df122c8cbf3",
       "hide": false,
+      "hideWhenGamepad": false,
       "visibilityType": "always",
       "normalButtons": [
         {
@@ -85,6 +217,7 @@
       "name": "tab",
       "uuid": "b7859a69d0d3",
       "hide": false,
+      "hideWhenGamepad": false,
       "visibilityType": "always",
       "normalButtons": [
         {
@@ -402,215 +535,6 @@
           "isSwipple": false,
           "isPenetrable": false,
           "isToggleable": false
-        },
-        {
-          "text": {
-            "default": "",
-            "matchQueue": [
-              {
-                "language_tag": "zh-CN",
-                "value": "输入法"
-              }
-            ]
-          },
-          "uuid": "64a0cea2e4844acdaf",
-          "position": {
-            "x": 5000,
-            "y": 10000
-          },
-          "buttonSize": {
-            "type": "percentage",
-            "widthDp": 50.0,
-            "heightDp": 50.0,
-            "widthPercentage": 1500,
-            "heightPercentage": 1500,
-            "widthReference": "screen_width",
-            "heightReference": "screen_height"
-          },
-          "buttonStyle": "599b831f64ec",
-          "textAlignment": "Center",
-          "visibilityType": "in_menu",
-          "isSwipple": false,
-          "isPenetrable": false,
-          "isToggleable": false
-        },
-        {
-          "text": {
-            "default": "L",
-            "matchQueue": [
-              {
-                "language_tag": "zh-CN",
-                "value": "输入法"
-              }
-            ]
-          },
-          "uuid": "6e5a7e1b43f54136b2",
-          "position": {
-            "x": 4476,
-            "y": 10000
-          },
-          "buttonSize": {
-            "type": "percentage",
-            "widthDp": 50.0,
-            "heightDp": 50.0,
-            "widthPercentage": 500,
-            "heightPercentage": 1500,
-            "widthReference": "screen_width",
-            "heightReference": "screen_height"
-          },
-          "buttonStyle": "a5dd445c5cb6",
-          "textAlignment": "Center",
-          "visibilityType": "in_menu",
-          "clickEvents": [
-            {
-              "type": "launcher_event",
-              "key": "GLFW_MOUSE_BUTTON_LEFT"
-            }
-          ],
-          "isSwipple": false,
-          "isPenetrable": false,
-          "isToggleable": false
-        },
-        {
-          "text": {
-            "default": "🖱",
-            "matchQueue": [
-              {
-                "language_tag": "zh-CN",
-                "value": "输入法"
-              }
-            ]
-          },
-          "uuid": "8bbaf699707d4d24a2",
-          "position": {
-            "x": 5000,
-            "y": 10000
-          },
-          "buttonSize": {
-            "type": "percentage",
-            "widthDp": 50.0,
-            "heightDp": 50.0,
-            "widthPercentage": 500,
-            "heightPercentage": 1500,
-            "widthReference": "screen_width",
-            "heightReference": "screen_height"
-          },
-          "buttonStyle": "ee9a62164625",
-          "textAlignment": "Center",
-          "visibilityType": "in_menu",
-          "clickEvents": [
-            {
-              "type": "launcher_event",
-              "key": "GLFW_MOUSE_BUTTON_MIDDLE"
-            }
-          ],
-          "isSwipple": false,
-          "isPenetrable": false,
-          "isToggleable": false
-        },
-        {
-          "text": {
-            "default": "R",
-            "matchQueue": [
-              {
-                "language_tag": "zh-CN",
-                "value": "输入法"
-              }
-            ]
-          },
-          "uuid": "d430f1c628a744c580",
-          "position": {
-            "x": 5524,
-            "y": 10000
-          },
-          "buttonSize": {
-            "type": "percentage",
-            "widthDp": 50.0,
-            "heightDp": 50.0,
-            "widthPercentage": 500,
-            "heightPercentage": 1500,
-            "widthReference": "screen_width",
-            "heightReference": "screen_height"
-          },
-          "buttonStyle": "032e4e072e86",
-          "textAlignment": "Center",
-          "visibilityType": "in_menu",
-          "clickEvents": [
-            {
-              "type": "launcher_event",
-              "key": "GLFW_MOUSE_BUTTON_RIGHT"
-            }
-          ],
-          "isSwipple": false,
-          "isPenetrable": false,
-          "isToggleable": false
-        },
-        {
-          "text": {
-            "default": "",
-            "matchQueue": [
-              {
-                "language_tag": "zh-CN",
-                "value": "输入法"
-              }
-            ]
-          },
-          "uuid": "0b06905a1b094dd09c",
-          "position": {
-            "x": 2918,
-            "y": 10000
-          },
-          "buttonSize": {
-            "type": "percentage",
-            "widthDp": 50.0,
-            "heightDp": 50.0,
-            "widthPercentage": 700,
-            "heightPercentage": 1000,
-            "widthReference": "screen_width",
-            "heightReference": "screen_height"
-          },
-          "buttonStyle": "599b831f64ec",
-          "textAlignment": "Center",
-          "visibilityType": "in_menu",
-          "isSwipple": false,
-          "isPenetrable": false,
-          "isToggleable": false
-        },
-        {
-          "text": {
-            "default": "SHIFT",
-            "matchQueue": [
-              {
-                "language_tag": "zh-CN",
-                "value": "输入法"
-              }
-            ]
-          },
-          "uuid": "c6db2f3047f4428b80",
-          "position": {
-            "x": 2918,
-            "y": 10000
-          },
-          "buttonSize": {
-            "type": "percentage",
-            "widthDp": 50.0,
-            "heightDp": 50.0,
-            "widthPercentage": 700,
-            "heightPercentage": 1000,
-            "widthReference": "screen_width",
-            "heightReference": "screen_height"
-          },
-          "buttonStyle": "f2cb7737803e",
-          "visibilityType": "in_menu",
-          "clickEvents": [
-            {
-              "type": "key",
-              "key": "GLFW_KEY_LEFT_SHIFT"
-            }
-          ],
-          "isSwipple": false,
-          "isPenetrable": false,
-          "isToggleable": false
         }
       ]
     },
@@ -618,6 +542,7 @@
       "name": "map",
       "uuid": "f5e669762024",
       "hide": false,
+      "hideWhenGamepad": false,
       "visibilityType": "always",
       "normalButtons": [
         {
@@ -803,38 +728,6 @@
           "isSwipple": false,
           "isPenetrable": false,
           "isToggleable": false
-        },
-        {
-          "text": {
-            "default": "✧",
-            "matchQueue": []
-          },
-          "uuid": "8d2b64d7c6d14df2b2",
-          "position": {
-            "x": 7456,
-            "y": 10000
-          },
-          "buttonSize": {
-            "type": "percentage",
-            "widthDp": 50.0,
-            "heightDp": 50.0,
-            "widthPercentage": 500,
-            "heightPercentage": 1000,
-            "widthReference": "screen_width",
-            "heightReference": "screen_height"
-          },
-          "buttonStyle": "032e4e072e86",
-          "textBold": true,
-          "visibilityType": "in_game",
-          "clickEvents": [
-            {
-              "type": "key",
-              "key": "GLFW_KEY_SEMICOLON"
-            }
-          ],
-          "isSwipple": false,
-          "isPenetrable": false,
-          "isToggleable": false
         }
       ]
     },
@@ -938,7 +831,7 @@
           },
           "uuid": "3c80975b7f1f4fcba0",
           "position": {
-            "x": 7319,
+            "x": 7776,
             "y": 10000
           },
           "buttonSize": {
@@ -963,7 +856,7 @@
           },
           "uuid": "91c702d511794bfc9b",
           "position": {
-            "x": 6932,
+            "x": 7365,
             "y": 10000
           },
           "buttonSize": {
@@ -1085,55 +978,65 @@
         {
           "text": {
             "default": "",
-            "matchQueue": []
+            "matchQueue": [
+              {
+                "language_tag": "zh-CN",
+                "value": "输入法"
+              }
+            ]
           },
-          "uuid": "9a4ecc449ea9408ca4",
+          "uuid": "1141d75bb552495398",
           "position": {
-            "x": 0,
+            "x": 5000,
             "y": 10000
           },
           "buttonSize": {
             "type": "percentage",
             "widthDp": 50.0,
             "heightDp": 50.0,
-            "widthPercentage": 1800,
+            "widthPercentage": 1500,
             "heightPercentage": 1000,
             "widthReference": "screen_width",
             "heightReference": "screen_height"
           },
-          "buttonStyle": "24b81486af8c",
+          "buttonStyle": "599b831f64ec",
           "textAlignment": "Center",
-          "visibilityType": "in_game",
+          "visibilityType": "in_menu",
           "isSwipple": false,
           "isPenetrable": false,
           "isToggleable": false
         },
         {
           "text": {
-            "default": "Eq.",
-            "matchQueue": []
+            "default": "L",
+            "matchQueue": [
+              {
+                "language_tag": "zh-CN",
+                "value": "输入法"
+              }
+            ]
           },
-          "uuid": "4be3fb0083314330a4",
+          "uuid": "836d1994f13b4f178b",
           "position": {
-            "x": 0,
+            "x": 4475,
             "y": 10000
           },
           "buttonSize": {
             "type": "percentage",
             "widthDp": 50.0,
             "heightDp": 50.0,
-            "widthPercentage": 600,
+            "widthPercentage": 500,
             "heightPercentage": 1000,
             "widthReference": "screen_width",
             "heightReference": "screen_height"
           },
-          "buttonStyle": "ee9a62164625",
+          "buttonStyle": "a5dd445c5cb6",
           "textAlignment": "Center",
-          "visibilityType": "in_game",
+          "visibilityType": "in_menu",
           "clickEvents": [
             {
-              "type": "key",
-              "key": "GLFW_KEY_Z"
+              "type": "launcher_event",
+              "key": "GLFW_MOUSE_BUTTON_LEFT"
             }
           ],
           "isSwipple": false,
@@ -1142,30 +1045,72 @@
         },
         {
           "text": {
-            "default": "Nav",
-            "matchQueue": []
+            "default": "🖱",
+            "matchQueue": [
+              {
+                "language_tag": "zh-CN",
+                "value": "输入法"
+              }
+            ]
           },
-          "uuid": "3e2d634330af473ea6",
+          "uuid": "0390aa03bdb24e9083",
           "position": {
-            "x": 1272,
+            "x": 5000,
             "y": 10000
           },
           "buttonSize": {
             "type": "percentage",
             "widthDp": 50.0,
             "heightDp": 50.0,
-            "widthPercentage": 600,
+            "widthPercentage": 500,
+            "heightPercentage": 1000,
+            "widthReference": "screen_width",
+            "heightReference": "screen_height"
+          },
+          "buttonStyle": "ee9a62164625",
+          "textAlignment": "Center",
+          "visibilityType": "in_menu",
+          "clickEvents": [
+            {
+              "type": "launcher_event",
+              "key": "GLFW_MOUSE_BUTTON_MIDDLE"
+            }
+          ],
+          "isSwipple": false,
+          "isPenetrable": false,
+          "isToggleable": false
+        },
+        {
+          "text": {
+            "default": "R",
+            "matchQueue": [
+              {
+                "language_tag": "zh-CN",
+                "value": "输入法"
+              }
+            ]
+          },
+          "uuid": "deb0caadad8f40bab6",
+          "position": {
+            "x": 5525,
+            "y": 10000
+          },
+          "buttonSize": {
+            "type": "percentage",
+            "widthDp": 50.0,
+            "heightDp": 50.0,
+            "widthPercentage": 500,
             "heightPercentage": 1000,
             "widthReference": "screen_width",
             "heightReference": "screen_height"
           },
           "buttonStyle": "032e4e072e86",
           "textAlignment": "Center",
-          "visibilityType": "in_game",
+          "visibilityType": "in_menu",
           "clickEvents": [
             {
-              "type": "key",
-              "key": "GLFW_KEY_X"
+              "type": "launcher_event",
+              "key": "GLFW_MOUSE_BUTTON_RIGHT"
             }
           ],
           "isSwipple": false,
@@ -1174,30 +1119,97 @@
         },
         {
           "text": {
-            "default": "Hide",
+            "default": "✧",
             "matchQueue": []
           },
-          "uuid": "1ee6b94013ba43ae8f",
+          "uuid": "7ebd125240fc4a7686",
           "position": {
-            "x": 636,
+            "x": 7894,
             "y": 10000
           },
           "buttonSize": {
             "type": "percentage",
             "widthDp": 50.0,
             "heightDp": 50.0,
-            "widthPercentage": 600,
+            "widthPercentage": 500,
             "heightPercentage": 1000,
             "widthReference": "screen_width",
             "heightReference": "screen_height"
           },
-          "buttonStyle": "ee9a62164625",
-          "textAlignment": "Center",
+          "buttonStyle": "032e4e072e86",
+          "textBold": true,
           "visibilityType": "in_game",
           "clickEvents": [
             {
               "type": "key",
-              "key": "GLFW_KEY_O"
+              "key": "GLFW_KEY_SEMICOLON"
+            }
+          ],
+          "isSwipple": false,
+          "isPenetrable": false,
+          "isToggleable": false
+        },
+        {
+          "text": {
+            "default": "",
+            "matchQueue": [
+              {
+                "language_tag": "zh-CN",
+                "value": "输入法"
+              }
+            ]
+          },
+          "uuid": "c19864b2318246e2a8",
+          "position": {
+            "x": 2152,
+            "y": 10000
+          },
+          "buttonSize": {
+            "type": "percentage",
+            "widthDp": 50.0,
+            "heightDp": 50.0,
+            "widthPercentage": 700,
+            "heightPercentage": 1000,
+            "widthReference": "screen_width",
+            "heightReference": "screen_height"
+          },
+          "buttonStyle": "599b831f64ec",
+          "textAlignment": "Center",
+          "visibilityType": "in_menu",
+          "isSwipple": false,
+          "isPenetrable": false,
+          "isToggleable": false
+        },
+        {
+          "text": {
+            "default": "SHIFT",
+            "matchQueue": [
+              {
+                "language_tag": "zh-CN",
+                "value": "输入法"
+              }
+            ]
+          },
+          "uuid": "f3e961c42b38494abe",
+          "position": {
+            "x": 2152,
+            "y": 10000
+          },
+          "buttonSize": {
+            "type": "percentage",
+            "widthDp": 50.0,
+            "heightDp": 50.0,
+            "widthPercentage": 700,
+            "heightPercentage": 1000,
+            "widthReference": "screen_width",
+            "heightReference": "screen_height"
+          },
+          "buttonStyle": "f2cb7737803e",
+          "visibilityType": "in_menu",
+          "clickEvents": [
+            {
+              "type": "key",
+              "key": "GLFW_KEY_LEFT_SHIFT"
             }
           ],
           "isSwipple": false,
@@ -3103,5 +3115,5 @@
       }
     }
   ],
-  "editorVersion": 4
+  "editorVersion": 6
 }

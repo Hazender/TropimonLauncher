@@ -1,3 +1,20 @@
+/*
+ * Tropimon Launcher
+ * Copyright (C) 2025 Hazender
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
 package com.hazender.tropimonlauncher.ui.components
 
 import androidx.compose.animation.core.*
@@ -19,29 +36,44 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 
 /**
+ * Cache global pour le statut du serveur
+ * Persiste pendant toute la durée de vie de l'application
+ */
+object ServerStatusCache {
+    var cachedStatus: ServerStatus? by mutableStateOf(null)
+        private set
+
+    fun updateStatus(newStatus: ServerStatus?) {
+        if (newStatus != null) {
+            cachedStatus = newStatus
+        }
+    }
+}
+
+/**
  * Indicateur de statut du serveur Minecraft
  * Récupère automatiquement toutes les infos depuis androidConfig.json via CloudflareR2Service
  * Affiche le nombre de joueurs en ligne avec animation
+ * Conserve la dernière valeur récupérée avec succès pour toute la durée de l'app
  */
 @Composable
 fun ServerStatusIndicator(
     modifier: Modifier = Modifier,
     updateInterval: Long = 30_000L
 ) {
-    var serverStatus by remember { mutableStateOf<ServerStatus?>(null) }
-    var isChecking by remember { mutableStateOf(true) }
+    // Utilise le cache global qui persiste même si le composable est détruit
+    val cachedServerStatus = ServerStatusCache.cachedStatus
 
     // Ping périodique
     LaunchedEffect(updateInterval) {
         while (isActive) {
-            isChecking = true
-            serverStatus = MinecraftServerStatus.pingServer()
-            isChecking = false
+            val newStatus = MinecraftServerStatus.pingServer()
+            ServerStatusCache.updateStatus(newStatus)
             delay(updateInterval)
         }
     }
 
-    // Animation de pulsation douce pendant le chargement initial
+    // Animation de pulsation douce pendant le chargement initial uniquement
     val pulseAlpha by rememberInfiniteTransition(label = "pulse").animateFloat(
         initialValue = 0.5f,
         targetValue = 1f,
@@ -53,12 +85,12 @@ fun ServerStatusIndicator(
     )
 
     val playerCountText = when {
-        isChecking && serverStatus == null -> "..."
-        else -> (serverStatus?.takeIf { it.online }?.playerCount ?: 0).toString()
+        cachedServerStatus == null -> "..." // Aucune donnée jamais récupérée
+        else -> (cachedServerStatus.takeIf { it.online }?.playerCount ?: 0).toString()
     }
 
-    // Toujours la même couleur primaire, même si offline
-    val textColor = if (isChecking && serverStatus == null) {
+    // Couleur : animation seulement si on n'a jamais eu de données
+    val textColor = if (cachedServerStatus == null) {
         LocalContentColor.current.copy(alpha = 0.7f)
     } else {
         MaterialTheme.colorScheme.primary
@@ -72,9 +104,9 @@ fun ServerStatusIndicator(
         // Nombre de joueurs
         Text(
             text = playerCountText,
-            style = MaterialTheme.typography.titleMedium, // Même taille que le texte à côté
+            style = MaterialTheme.typography.titleMedium,
             color = textColor,
-            modifier = Modifier.alpha(if (isChecking && serverStatus == null) pulseAlpha else 1f)
+            modifier = Modifier.alpha(if (cachedServerStatus == null) pulseAlpha else 1f)
         )
 
         Spacer(Modifier.width(6.dp))
@@ -83,7 +115,7 @@ fun ServerStatusIndicator(
             text = stringResource(R.string.main_tropimon_serverstatus),
             style = MaterialTheme.typography.titleMedium,
             color = Color.White,
-            modifier = Modifier.alpha(if (isChecking && serverStatus == null) pulseAlpha else 1f)
+            modifier = Modifier.alpha(if (cachedServerStatus == null) pulseAlpha else 1f)
         )
     }
 }
