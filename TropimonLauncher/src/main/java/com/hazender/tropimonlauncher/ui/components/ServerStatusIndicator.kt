@@ -29,6 +29,9 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.hazender.tropimonlauncher.R
 import com.hazender.tropimonlauncher.game.server.MinecraftServerStatus
 import com.hazender.tropimonlauncher.game.server.ServerStatus
@@ -55,6 +58,7 @@ object ServerStatusCache {
  * Récupère automatiquement toutes les infos depuis androidConfig.json via CloudflareR2Service
  * Affiche le nombre de joueurs en ligne avec animation
  * Conserve la dernière valeur récupérée avec succès pour toute la durée de l'app
+ * Actualise immédiatement au retour au premier plan
  */
 @Composable
 fun ServerStatusIndicator(
@@ -64,8 +68,26 @@ fun ServerStatusIndicator(
     // Utilise le cache global qui persiste même si le composable est détruit
     val cachedServerStatus = ServerStatusCache.cachedStatus
 
+    // Trigger pour forcer une mise à jour immédiate
+    var refreshTrigger by remember { mutableStateOf(0) }
+
+    // Détection du retour au premier plan
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                // L'app revient au premier plan, on force une mise à jour
+                refreshTrigger++
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
     // Ping périodique
-    LaunchedEffect(updateInterval) {
+    LaunchedEffect(updateInterval, refreshTrigger) {
         while (isActive) {
             val newStatus = MinecraftServerStatus.pingServer()
             ServerStatusCache.updateStatus(newStatus)
